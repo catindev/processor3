@@ -5,21 +5,21 @@
       "type": "decision-rule",
       "description": "Validation produced EXCEPTION",
       "when": { "hasExceptions": true },
-      "then": { "decision": "EXCEPTION", "reason": "VALIDATION_EXCEPTION" }
+      "then": { "decision": "REJECT_COMPLIANCE", "reason": "REGULATORY_REJECT" }
     },
     {
       "id": "validation.has_error",
       "type": "decision-rule",
       "description": "Validation produced ERROR",
       "when": { "hasErrors": true },
-      "then": { "decision": "ERROR", "reason": "VALIDATION_ERROR" }
+      "then": { "decision": "REJECT_VALIDATION", "reason": "VALIDATION_ERROR" }
     },
     {
       "id": "validation.has_warning",
       "type": "decision-rule",
       "description": "Validation produced OK_WITH_WARNINGS",
       "when": { "hasWarnings": true },
-      "then": { "decision": "OK_WITH_WARNINGS", "reason": "VALIDATION_WARNING" }
+      "then": { "decision": "CONTINUE", "reason": "VALIDATION_WARNING" }
     },
     {
       "id": "decisions.fl_resident.validation_outcome",
@@ -32,7 +32,7 @@
         "validation.has_error",
         "validation.has_warning"
       ],
-      "defaultDecision": { "decision": "OK", "reason": "VALIDATION_OK" }
+      "defaultDecision": { "decision": "CONTINUE", "reason": "VALIDATION_OK" }
     },
     {
       "id": "find_client.not_found",

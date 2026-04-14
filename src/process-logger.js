@@ -27,7 +27,9 @@ function russianActionDescription(action, entry) {
   switch (action) {
     case 'init': return `Инициализация процесса.${stepId}`;
     case 'step': return `Планирование текущего активного шага.${stepId}`;
-    case 'execute': return `Исполнение PROCESS или CONTROL шага процессора.${stepId}`;
+    case 'run': return `Исполнение PROCESS шага процессора.${stepId}`;
+    case 'route': return `Продвижение CONTROL шага процессора.${stepId}`;
+    case 'execute': return `Обращение к устаревшей ручке /execute.${stepId}`;
     case 'apply': return `Применение результата EFFECT шага и перевод процесса в следующее состояние.${stepId}`;
     case 'resume': return `Продолжение процесса по WAIT шагу после внешнего результата.${stepId}`;
     case 'error': return `Во время обработки запроса возникла ошибка.${stepId}`;
@@ -37,7 +39,7 @@ function russianActionDescription(action, entry) {
 }
 
 function extractStateLike(entry) {
-  const candidates = [entry?.response, entry?.request?.body?.state, entry?.request?.body];
+  const candidates = [entry?.response?.state, entry?.response, entry?.request?.body?.state, entry?.request?.body];
   for (const candidate of candidates) {
     if (candidate && typeof candidate === 'object' && typeof candidate.processId === 'string' && typeof candidate.id === 'string' && typeof candidate.version === 'string') {
       return candidate;
@@ -71,12 +73,13 @@ export function createProcessLogger(config) {
   function getProcessId(req, responsePayload) {
     if (req.body?.processId) return String(req.body.processId);
     if (req.body?.state?.processId) return String(req.body.state.processId);
+    if (responsePayload?.state?.processId) return String(responsePayload.state.processId);
     if (responsePayload?.processId) return String(responsePayload.processId);
     return null;
   }
 
   function getStepId(req, responsePayload) {
-    return req.body?.stepId || responsePayload?.id || responsePayload?.currentStepId || null;
+    return req.body?.stepId || responsePayload?.step?.id || responsePayload?.state?.currentStepId || responsePayload?.id || responsePayload?.currentStepId || null;
   }
 
   function processDir(processId) {
@@ -170,7 +173,7 @@ export function createProcessLogger(config) {
         writeJson(path.join(dir, `${processId}.state.init.json`), stateLike);
       }
     }
-    const finalState = responsePayload && typeof responsePayload === 'object' && responsePayload.status && ['COMPLETE', 'FAIL'].includes(responsePayload.status);
+    const finalState = responsePayload?.state && typeof responsePayload.state === 'object' && responsePayload.state.status && ['COMPLETE', 'FAIL'].includes(responsePayload.state.status);
     if (finalState || errorPayload) {
       try {
         buildHtml(processId);
@@ -196,7 +199,7 @@ export function createProcessLogger(config) {
 
   function attach(app) {
     app.use((req, res, next) => {
-      if (!['/init', '/step', '/execute', '/apply', '/resume'].includes(req.path)) return next();
+      if (!['/init', '/step', '/run', '/route', '/execute', '/apply', '/resume'].includes(req.path)) return next();
       const originalJson = res.json.bind(res);
       res.json = (payload) => {
         const action = req.path.slice(1);

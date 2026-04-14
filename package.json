@@ -16,6 +16,7 @@
     "@processengine/mappings": "^2.0.1",
     "@processengine/rules": "^2.0.1",
     "@processengine/semantics": "^1.0.0",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "swagger-ui-express": "^5.0.1"
   }
 }

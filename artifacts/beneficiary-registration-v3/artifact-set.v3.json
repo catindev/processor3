@@ -6,7 +6,8 @@
   "rulesFile": "rules.snapshot.v3.json",
   "mappingFiles": {
     "mappings.fl_resident.validation_facts": "mappings/validation_facts.v3.json",
-    "mappings.fl_resident.address_check_result": "mappings/address_check_result.v3.json"
+    "mappings.fl_resident.address_check_result": "mappings/address_check_result.v3.json",
+    "mappings.fl_resident.validation_reject_terminal_result": "mappings/validation_reject_terminal_result.v3.json"
   },
   "decisionsFile": "decision.v3.json",
   "operatorPackId": "beneficiary-defaults"

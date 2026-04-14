@@ -1,7 +1,8 @@
 import express from 'express';
-import { HttpError } from './errors.js';
+import swaggerUi from 'swagger-ui-express';
+import { HttpError, errorPayload } from './errors.js';
 
-function respond(req, res, fn, next) {
+function respond(res, fn, next) {
   try {
     const payload = fn();
     res.status(200).json(payload);
@@ -10,7 +11,7 @@ function respond(req, res, fn, next) {
   }
 }
 
-export function createApp(processor, processLogger = null) {
+export function createApp(processor, openApiDocument, processLogger = null) {
   const app = express();
   app.locals.processLogger = processLogger;
 
@@ -20,25 +21,36 @@ export function createApp(processor, processLogger = null) {
   }
 
   app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', ...processor.artifactInfo() });
+    const health = processor.health();
+    res.status(health.statusCode).json(health.body);
   });
 
-  app.post('/init', (req, res, next) => respond(req, res, () => processor.init(req.body), next));
-  app.post('/step', (req, res, next) => respond(req, res, () => processor.step(req.body), next));
-  app.post('/execute', (req, res, next) => respond(req, res, () => processor.execute(req.body), next));
-  app.post('/apply', (req, res, next) => respond(req, res, () => processor.apply(req.body), next));
-  app.post('/resume', (req, res, next) => respond(req, res, () => processor.resume(req.body), next));
+  app.get('/openapi.json', (_req, res) => {
+    res.json(openApiDocument);
+  });
+
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument, {
+    explorer: true,
+    customSiteTitle: 'Processor3 API'
+  }));
+
+  app.post('/init', (req, res, next) => respond(res, () => processor.init(req.body), next));
+  app.post('/step', (req, res, next) => respond(res, () => processor.step(req.body), next));
+  app.post('/run', (req, res, next) => respond(res, () => processor.run(req.body), next));
+  app.post('/route', (req, res, next) => respond(res, () => processor.route(req.body), next));
+  app.post('/apply', (req, res, next) => respond(res, () => processor.apply(req.body), next));
+  app.post('/resume', (req, res, next) => respond(res, () => processor.resume(req.body), next));
+  app.post('/execute', (req, res, next) => respond(res, () => processor.execute(req.body), next));
 
   app.use((error, req, res, _next) => {
     if (error instanceof SyntaxError && 'body' in error) {
-      const payload = { error: 'Invalid JSON body.' };
-      req.app.locals.processLogger?.logError(req, new HttpError(400, payload.error), 400);
+      const payload = errorPayload(new HttpError(400, 'request_error', 'INVALID_JSON', 'Invalid JSON body.'));
+      req.app.locals.processLogger?.logError(req, payload.error, 400);
       return res.status(400).json(payload);
     }
     const status = error instanceof HttpError ? error.status : 500;
-    const payload = { error: error.message || 'Internal server error.' };
-    if (error.details) payload.details = error.details;
-    req.app.locals.processLogger?.logError(req, error, status);
+    const payload = errorPayload(error);
+    req.app.locals.processLogger?.logError(req, payload.error, status);
     return res.status(status).json(payload);
   });
 
