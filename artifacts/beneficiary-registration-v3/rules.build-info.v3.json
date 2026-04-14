@@ -1,0 +1,14 @@
+{
+  "projectId": "nominal-beneficiaries-rules",
+  "projectTitle": "Бенефициары ном. счетов (FL_RESIDENT)",
+  "builtAt": "2026-03-30T12:39:44.213Z",
+  "jsonspecsVersion": "1.1.0",
+  "artifactCount": 188,
+  "entrypoints": [
+    "entrypoints.fl_resident.full_validation"
+  ],
+  "nodeOperatorPacks": [
+    "./operators/node"
+  ],
+  "note": "patched for FIAS structure validation in RU addresses"
+}

@@ -1,0 +1,189 @@
+{
+  "id": "beneficiary.registration.v3",
+  "version": "1.0.0",
+  "entryStepId": "route_by_supported_scenario",
+  "steps": {
+    "route_by_supported_scenario": {
+      "id": "route_by_supported_scenario",
+      "type": "CONTROL",
+      "subtype": "ROUTE",
+      "factRef": "$.context.input.application.beneficiary.type",
+      "cases": {
+        "FL_RESIDENT": "validate_fl_resident_request"
+      },
+      "defaultNextStepId": "finish_fail_poc_scenario_not_supported"
+    },
+    "validate_fl_resident_request": {
+      "id": "validate_fl_resident_request",
+      "type": "PROCESS",
+      "subtype": "RULES",
+      "artefactId": "entrypoints.fl_resident.full_validation",
+      "contract": {
+        "input": {
+          "ref": {
+            "payload": "$.context.input.application",
+            "context": {
+              "currentDate": "$.context.input.currentDate"
+            }
+          }
+        },
+        "output": {
+          "ref": "$.context.checks.validation"
+        }
+      },
+      "nextStepId": "derive_validation_facts"
+    },
+    "derive_validation_facts": {
+      "id": "derive_validation_facts",
+      "type": "PROCESS",
+      "subtype": "MAPPINGS",
+      "artefactId": "mappings.fl_resident.validation_facts",
+      "contract": {
+        "input": {
+          "ref": "$.context.checks.validation"
+        },
+        "output": {
+          "ref": "$.context.facts.validation"
+        }
+      },
+      "nextStepId": "choose_validation_outcome"
+    },
+    "choose_validation_outcome": {
+      "id": "choose_validation_outcome",
+      "type": "PROCESS",
+      "subtype": "DECISIONS",
+      "artefactId": "decisions.fl_resident.validation_outcome",
+      "contract": {
+        "input": {
+          "ref": "$.context.facts.validation"
+        },
+        "output": {
+          "ref": "$.context.decisions.validation"
+        }
+      },
+      "nextStepId": "switch_validation_outcome"
+    },
+    "switch_validation_outcome": {
+      "id": "switch_validation_outcome",
+      "type": "CONTROL",
+      "subtype": "SWITCH",
+      "decisionSetId": "validation",
+      "cases": {
+        "EXCEPTION": "finish_reject_validation",
+        "ERROR": "finish_reject_validation",
+        "OK": "validate_registration_address",
+        "OK_WITH_WARNINGS": "validate_registration_address"
+      },
+      "defaultNextStepId": "finish_fail_technical"
+    },
+    "validate_registration_address": {
+      "id": "validate_registration_address",
+      "type": "EFFECT",
+      "subtype": "CALL",
+      "operationId": "VALIDATE_ADDRESS",
+      "inputRef": "$.context.input.application.beneficiary.address.registration",
+      "nextStepId": "wait_validate_registration_address",
+      "onErrorStepId": "finish_fail_technical"
+    },
+    "wait_validate_registration_address": {
+      "id": "wait_validate_registration_address",
+      "type": "WAIT",
+      "subtype": "MESSAGE",
+      "sourceStepId": "validate_registration_address",
+      "nextStepId": "extract_address_validation_result",
+      "onErrorStepId": "finish_reject_address",
+      "onTimeoutStepId": "finish_fail_technical"
+    },
+    "extract_address_validation_result": {
+      "id": "extract_address_validation_result",
+      "type": "PROCESS",
+      "subtype": "MAPPINGS",
+      "artefactId": "mappings.fl_resident.address_check_result",
+      "contract": {
+        "input": {
+          "ref": "$.context.effects.validate_registration_address.waitResult.result"
+        },
+        "output": {
+          "ref": "$.context.facts.address_check"
+        }
+      },
+      "nextStepId": "route_after_address_validation"
+    },
+    "route_after_address_validation": {
+      "id": "route_after_address_validation",
+      "type": "CONTROL",
+      "subtype": "ROUTE",
+      "factRef": "$.context.facts.address_check.valid",
+      "cases": {
+        "true": "run_abs_ensure_fl_resident_beneficiary"
+      },
+      "defaultNextStepId": "finish_reject_address"
+    },
+    "run_abs_ensure_fl_resident_beneficiary": {
+      "id": "run_abs_ensure_fl_resident_beneficiary",
+      "type": "EFFECT",
+      "subtype": "SUBFLOW",
+      "operationId": "ABS_ENSURE_FL_RESIDENT_BENEFICIARY",
+      "flowId": "abs.ensure_fl_resident_beneficiary",
+      "flowVersion": "1.0.0",
+      "inputRef": "$.context.input.application",
+      "nextStepId": "wait_abs_ensure_fl_resident_beneficiary",
+      "onErrorStepId": "finish_fail_technical"
+    },
+    "wait_abs_ensure_fl_resident_beneficiary": {
+      "id": "wait_abs_ensure_fl_resident_beneficiary",
+      "type": "WAIT",
+      "subtype": "MESSAGE",
+      "sourceStepId": "run_abs_ensure_fl_resident_beneficiary",
+      "nextStepId": "finish_success",
+      "onErrorStepId": "finish_fail_technical",
+      "onTimeoutStepId": "finish_fail_technical"
+    },
+    "finish_success": {
+      "id": "finish_success",
+      "type": "TERMINAL",
+      "subtype": "COMPLETE",
+      "result": {
+        "status": "COMPLETE",
+        "outcome": "BENEFICIARY_REGISTERED"
+      }
+    },
+    "finish_fail_poc_scenario_not_supported": {
+      "id": "finish_fail_poc_scenario_not_supported",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "POC_SCENARIO_NOT_SUPPORTED",
+        "message": "Сервис ограничен сценарием ФЛ резидент"
+      }
+    },
+    "finish_reject_validation": {
+      "id": "finish_reject_validation",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "VALIDATION_REJECT"
+      }
+    },
+    "finish_reject_address": {
+      "id": "finish_reject_address",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "ADDRESS_NOT_VERIFIED"
+      }
+    },
+    "finish_fail_technical": {
+      "id": "finish_fail_technical",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE"
+      }
+    }
+  }
+}

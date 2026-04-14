@@ -1,0 +1,3718 @@
+{
+  "version": "1",
+  "createdAt": "2026-03-30T12:39:44.213Z",
+  "createdBy": "vladimirtitskiy",
+  "description": "Пакет правил проверок заявок на регистрацию бенефициаров номинальных счетов. В этом наборе пока чтто есть только стартовый пакет правил для профиля FL_RESIDENT. Пакет рассчитан как новая база для дальнейшего развития остальных профилей",
+  "manifest": {
+    "project": {
+      "id": "nominal-beneficiaries-rules",
+      "title": "Бенефициары ном. счетов (FL_RESIDENT)",
+      "description": "Пакет правил проверок заявок на регистрацию бенефициаров номинальных счетов. В этом наборе пока чтто есть только стартовый пакет правил для профиля FL_RESIDENT. Пакет рассчитан как новая база для дальнейшего развития остальных профилей",
+      "language": "ru"
+    },
+    "paths": {
+      "rules": "./rules",
+      "samples": "./samples",
+      "docs": "./docs",
+      "dist": "./dist"
+    },
+    "studio": {
+      "port": 3100,
+      "openBrowser": true
+    },
+    "build": {
+      "snapshotFile": "snapshot.json",
+      "buildInfoFile": "build-info.json"
+    },
+    "operatorPacks": {
+      "node": [
+        "./operators/node"
+      ]
+    },
+    "catalog": {
+      "fields": {
+        "beneficiary.type": {
+          "title": "Тип бенефициара",
+          "description": "Тип бенефициара",
+          "businessDescription": "Тип бенефициара"
+        },
+        "beneficiary.inn": {
+          "title": "ИНН бенефициара",
+          "description": "ИНН бенефициара",
+          "businessDescription": "ИНН бенефициара"
+        },
+        "beneficiary.participationId": {
+          "title": "Идентификатор основания участия",
+          "description": "Идентификатор основания участия",
+          "businessDescription": "Идентификатор основания участия"
+        },
+        "beneficiary.contacts.phone": {
+          "title": "Телефон",
+          "description": "Телефон",
+          "businessDescription": "Телефон"
+        },
+        "beneficiary.contacts.email": {
+          "title": "Email",
+          "description": "Email",
+          "businessDescription": "Email"
+        },
+        "beneficiary.contacts.phoneForeign": {
+          "title": "Иностранный телефон",
+          "description": "Иностранный телефон",
+          "businessDescription": "Иностранный телефон"
+        },
+        "beneficiary.status.startDate": {
+          "title": "Дата начала статуса",
+          "description": "Дата начала статуса",
+          "businessDescription": "Дата начала статуса"
+        },
+        "beneficiary.status.endDate": {
+          "title": "Дата окончания статуса",
+          "description": "Дата окончания статуса",
+          "businessDescription": "Дата окончания статуса"
+        },
+        "beneficiary.fl.lastName": {
+          "title": "Фамилия",
+          "description": "Фамилия",
+          "businessDescription": "Фамилия"
+        },
+        "beneficiary.fl.firstName": {
+          "title": "Имя",
+          "description": "Имя",
+          "businessDescription": "Имя"
+        },
+        "beneficiary.fl.middleName": {
+          "title": "Отчество",
+          "description": "Отчество",
+          "businessDescription": "Отчество"
+        },
+        "beneficiary.fl.birthDate": {
+          "title": "Дата рождения",
+          "description": "Дата рождения",
+          "businessDescription": "Дата рождения"
+        },
+        "beneficiary.fl.birthPlace": {
+          "title": "Место рождения",
+          "description": "Место рождения",
+          "businessDescription": "Место рождения"
+        },
+        "beneficiary.fl.citizenshipCode": {
+          "title": "Код гражданства",
+          "description": "Код гражданства",
+          "businessDescription": "Код гражданства"
+        },
+        "beneficiary.address.registration.countryCode": {
+          "title": "Страна адреса регистрации",
+          "description": "Страна адреса регистрации",
+          "businessDescription": "Страна адреса регистрации"
+        },
+        "beneficiary.address.registration.postalCode": {
+          "title": "Почтовый индекс адреса регистрации",
+          "description": "Почтовый индекс адреса регистрации",
+          "businessDescription": "Почтовый индекс адреса регистрации"
+        },
+        "beneficiary.address.registration.regionCode": {
+          "title": "Код региона адреса регистрации",
+          "description": "Код региона адреса регистрации",
+          "businessDescription": "Код региона адреса регистрации"
+        },
+        "beneficiary.address.registration.regionName": {
+          "title": "Регион адреса регистрации",
+          "description": "Регион адреса регистрации",
+          "businessDescription": "Регион адреса регистрации"
+        },
+        "beneficiary.address.registration.city": {
+          "title": "Город адреса регистрации",
+          "description": "Город адреса регистрации",
+          "businessDescription": "Город адреса регистрации"
+        },
+        "beneficiary.address.registration.locality": {
+          "title": "Населённый пункт адреса регистрации",
+          "description": "Населённый пункт адреса регистрации",
+          "businessDescription": "Населённый пункт адреса регистрации"
+        },
+        "beneficiary.address.registration.street": {
+          "title": "Улица адреса регистрации",
+          "description": "Улица адреса регистрации",
+          "businessDescription": "Улица адреса регистрации"
+        },
+        "beneficiary.address.registration.house": {
+          "title": "Дом адреса регистрации",
+          "description": "Дом адреса регистрации",
+          "businessDescription": "Дом адреса регистрации"
+        },
+        "beneficiary.address.registration.building": {
+          "title": "Корпус/строение адреса регистрации",
+          "description": "Корпус/строение адреса регистрации",
+          "businessDescription": "Корпус/строение адреса регистрации"
+        },
+        "beneficiary.address.registration.apartment": {
+          "title": "Квартира/офис адреса регистрации",
+          "description": "Квартира/офис адреса регистрации",
+          "businessDescription": "Квартира/офис адреса регистрации"
+        },
+        "beneficiary.address.registration.addressLine": {
+          "title": "Адрес регистрации одной строкой",
+          "description": "Адрес регистрации одной строкой",
+          "businessDescription": "Адрес регистрации одной строкой"
+        },
+        "beneficiary.idDoc.typeCode": {
+          "title": "Код типа документа",
+          "description": "Код типа документа",
+          "businessDescription": "Код типа документа"
+        },
+        "beneficiary.idDoc.typeName": {
+          "title": "Наименование типа документа",
+          "description": "Наименование типа документа",
+          "businessDescription": "Наименование типа документа"
+        },
+        "beneficiary.idDoc.series": {
+          "title": "Серия документа",
+          "description": "Серия документа",
+          "businessDescription": "Серия документа"
+        },
+        "beneficiary.idDoc.number": {
+          "title": "Номер документа",
+          "description": "Номер документа",
+          "businessDescription": "Номер документа"
+        },
+        "beneficiary.idDoc.issueDate": {
+          "title": "Дата выдачи документа",
+          "description": "Дата выдачи документа",
+          "businessDescription": "Дата выдачи документа"
+        },
+        "beneficiary.idDoc.expireDate": {
+          "title": "Дата окончания действия документа",
+          "description": "Дата окончания действия документа",
+          "businessDescription": "Дата окончания действия документа"
+        },
+        "beneficiary.idDoc.issuer": {
+          "title": "Кем выдан документ",
+          "description": "Кем выдан документ",
+          "businessDescription": "Кем выдан документ"
+        },
+        "beneficiary.idDoc.isForeignIdDoc": {
+          "title": "Признак иностранного удостоверяющего документа",
+          "description": "Признак иностранного удостоверяющего документа",
+          "businessDescription": "Признак иностранного удостоверяющего документа"
+        },
+        "beneficiary.tax.usTaxResident": {
+          "title": "Признак налогового резидентства США",
+          "description": "Признак налогового резидентства США",
+          "businessDescription": "Признак налогового резидентства США"
+        },
+        "beneficiary.tax.usResident": {
+          "title": "Признак резидентства США",
+          "description": "Признак резидентства США",
+          "businessDescription": "Признак резидентства США"
+        },
+        "beneficiary.tax.foreignTaxResident": {
+          "title": "Признак иностранного налогового резидентства",
+          "description": "Признак иностранного налогового резидентства",
+          "businessDescription": "Признак иностранного налогового резидентства"
+        },
+        "beneficiary.tax.foreignResidencies0.countryCode": {
+          "title": "Код страны иностранного налогового резидентства",
+          "description": "Код страны иностранного налогового резидентства",
+          "businessDescription": "Код страны иностранного налогового резидентства"
+        },
+        "beneficiary.tax.foreignResidencies0.tin": {
+          "title": "Иностранный ИНН",
+          "description": "Иностранный ИНН",
+          "businessDescription": "Иностранный ИНН"
+        },
+        "beneficiary.tax.foreignResidencies0.tinAbsenceReason": {
+          "title": "Причина отсутствия иностранного ИНН",
+          "description": "Причина отсутствия иностранного ИНН",
+          "businessDescription": "Причина отсутствия иностранного ИНН"
+        },
+        "beneficiary.idDoc.issuerCode": {
+          "title": "Код подразделения документа",
+          "description": "Код подразделения документа",
+          "businessDescription": "Код подразделения документа"
+        },
+        "beneficiary.contacts.postalAddress": {
+          "title": "Почтовый адрес",
+          "description": "Почтовый адрес",
+          "businessDescription": "Почтовый адрес"
+        },
+        "beneficiary.tax.foreignResidencies0.address": {
+          "title": "Адрес в иностранном государстве",
+          "description": "Адрес в иностранном государстве",
+          "businessDescription": "Адрес в иностранном государстве"
+        },
+        "beneficiary.contacts.postalAddressCountryCode": {
+          "title": "Код страны почтового адреса",
+          "description": "Код страны почтового адреса",
+          "businessDescription": "Код страны почтового адреса"
+        },
+        "$context.currentDate": {
+          "title": "Текущая дата из runtime-контекста",
+          "description": "Текущая дата из runtime-контекста",
+          "businessDescription": "Текущая дата из runtime-контекста"
+        },
+        "library.address.pred_registration_country_ru": {
+          "title": "Страна адреса регистрации равна RU",
+          "description": "Страна адреса регистрации равна RU"
+        },
+        "library.address.registration_region_code_required_for_ru": {
+          "title": "Для адреса РФ обязателен код региона",
+          "description": "Для адреса РФ обязателен код региона"
+        },
+        "library.address.registration_city_or_locality_required_for_ru": {
+          "title": "Для адреса РФ обязателен город или населённый пункт",
+          "description": "Для адреса РФ обязателен город или населённый пункт"
+        },
+        "library.address.registration_street_required_for_ru": {
+          "title": "Для адреса РФ обязательна улица",
+          "description": "Для адреса РФ обязательна улица"
+        },
+        "library.address.registration_house_required_for_ru": {
+          "title": "Для адреса РФ обязателен дом",
+          "description": "Для адреса РФ обязателен дом"
+        },
+        "library.address.registration_postal_required_for_ru": {
+          "title": "Для адреса РФ обязателен почтовый индекс",
+          "description": "Для адреса РФ обязателен почтовый индекс"
+        },
+        "library.address.cond_registration_fias_structure_for_ru": {
+          "title": "Для адреса РФ требуется ФИАС-структура",
+          "description": "Для адреса РФ требуется ФИАС-структура"
+        }
+      },
+      "entrypoints": {
+        "entrypoints.fl_resident.full_validation": {
+          "title": "FL_RESIDENT / full_validation",
+          "description": "FL_RESIDENT / full_validation"
+        }
+      },
+      "artifacts": {
+        "beneficiary_types": {
+          "title": "Допустимые типы бенефициаров для версии 1",
+          "description": "Допустимые типы бенефициаров для версии 1"
+        },
+        "document_type_codes_fl": {
+          "title": "Допустимые коды документов для ФЛ по классификатору: 21–35, 36, 37 и 99",
+          "description": "Допустимые коды документов для ФЛ по классификатору: 21–35, 36, 37 и 99"
+        },
+        "domestic_document_type_codes_fl": {
+          "title": "Коды документов для ФЛ, относящиеся к отечественной группе: 21–30",
+          "description": "Коды документов для ФЛ, относящиеся к отечественной группе: 21–30"
+        },
+        "foreign_document_type_codes_fl": {
+          "title": "Коды документов иностранных граждан / лиц без гражданства для ФЛ: 31–37 и 99",
+          "description": "Коды документов иностранных граждан / лиц без гражданства для ФЛ: 31–37 и 99"
+        },
+        "tin_absence_reasons": {
+          "title": "Причины отсутствия иностранного ИНН",
+          "description": "Причины отсутствия иностранного ИНН"
+        },
+        "true_false": {
+          "title": "Логические значения boolean",
+          "description": "Логические значения boolean"
+        },
+        "library.address.address_line": {
+          "title": "Проверка адреса регистрации (одной строкой) на длину",
+          "description": "Проверка адреса регистрации (одной строкой) на длину"
+        },
+        "library.address.apartment": {
+          "title": "Проверка квартиры или офиса адреса регистрации на длину",
+          "description": "Проверка квартиры или офиса адреса регистрации на длину"
+        },
+        "library.address.building": {
+          "title": "Проверка корпуса/строения адреса регистрации на длину",
+          "description": "Проверка корпуса/строения адреса регистрации на длину"
+        },
+        "library.address.city": {
+          "title": "Проверка города адреса регистрации на длину",
+          "description": "Проверка города адреса регистрации на длину"
+        },
+        "library.address.cond_address_line_if_present": {
+          "title": "Если адрес регистрации (одной строкой) заполнен, проверяем формат и длину",
+          "description": "Если адрес регистрации (одной строкой) заполнен, проверяем формат и длину"
+        },
+        "library.address.cond_apartment_if_present": {
+          "title": "Если заполнена квартира/офис адреса регистрации, проверяем формат и длину",
+          "description": "Если заполнена квартира/офис адреса регистрации, проверяем формат и длину"
+        },
+        "library.address.cond_building_if_present": {
+          "title": "Если заполнен корпус/строение адреса регистрации, проверяем формат и длину",
+          "description": "Если заполнен корпус/строение адреса регистрации, проверяем формат и длину"
+        },
+        "library.address.cond_city_if_present": {
+          "title": "Если города адреса регистрации заполнен, проверяем формат и длину",
+          "description": "Если города адреса регистрации заполнен, проверяем формат и длину"
+        },
+        "library.address.cond_house_if_present": {
+          "title": "Если дом адреса регистрации заполнен, проверяем формат и длину",
+          "description": "Если дом адреса регистрации заполнен, проверяем формат и длину"
+        },
+        "library.address.cond_locality_if_present": {
+          "title": "Если заполнен населённый пункт адреса регистрации, проверяем формат и длину",
+          "description": "Если заполнен населённый пункт адреса регистрации, проверяем формат и длину"
+        },
+        "library.address.cond_postal_address_country_if_present": {
+          "title": "Если код страны почтового адреса заполнен, проверяем формат",
+          "description": "Если код страны почтового адреса заполнен, проверяем формат"
+        },
+        "library.address.cond_postal_address_if_present": {
+          "title": "Если почтовый адрес указан, проверяем запрет США и код страны почтового адреса",
+          "description": "Если почтовый адрес указан, проверяем запрет США и код страны почтового адреса"
+        },
+        "library.address.cond_postal_if_present": {
+          "title": "Если почтовый индекс адреса регистрации заполнен, проверяем формат и длину",
+          "description": "Если почтовый индекс адреса регистрации заполнен, проверяем формат и длину"
+        },
+        "library.address.cond_region_code_if_present": {
+          "title": "Если код региона адреса регистрации заполнен, проверяем формат и длину",
+          "description": "Если код региона адреса регистрации заполнен, проверяем формат и длину"
+        },
+        "library.address.cond_region_name_if_present": {
+          "title": "Если заполнен регион адреса регистрации, проверяем формат и длину",
+          "description": "Если заполнен регион адреса регистрации, проверяем формат и длину"
+        },
+        "library.address.cond_street_if_present": {
+          "title": "Если заполнена улица адреса регистрации, проверяем формат и длину",
+          "description": "Если заполнена улица адреса регистрации, проверяем формат и длину"
+        },
+        "library.address.country": {
+          "title": "Проверка страны адреса регистрации",
+          "description": "Проверка страны адреса регистрации"
+        },
+        "library.address.house": {
+          "title": "Проверка дома адреса регистрации на длину",
+          "description": "Проверка дома адреса регистрации на длину"
+        },
+        "library.address.locality": {
+          "title": "Проверка населённого пункта адреса регистрации на длину",
+          "description": "Проверка населённого пункта адреса регистрации на длину"
+        },
+        "library.address.postal": {
+          "title": "Проверка почтового индекса адреса регистрации",
+          "description": "Проверка почтового индекса адреса регистрации"
+        },
+        "library.address.postal_address_country_format": {
+          "title": "Код страны почтового адреса должен быть в формате ISO 3166-1 alpha-2",
+          "description": "Код страны почтового адреса должен быть в формате ISO 3166-1 alpha-2"
+        },
+        "library.address.postal_address_country_required": {
+          "title": "Код страны почтового адреса обязателен, если почтовый адрес заполнен",
+          "description": "Код страны почтового адреса обязателен, если почтовый адрес заполнен"
+        },
+        "library.address.postal_address_not_us": {
+          "title": "Почтовый адрес не должен содержать указание на США",
+          "description": "Почтовый адрес не должен содержать указание на США"
+        },
+        "library.address.pred_address_line_present": {
+          "title": "Заполнен адрес регистрации (одной строкой)",
+          "description": "Заполнен адрес регистрации (одной строкой)"
+        },
+        "library.address.pred_apartment_present": {
+          "title": "Заполнена квартира или офис адреса регистрации",
+          "description": "Заполнена квартира или офис адреса регистрации"
+        },
+        "library.address.pred_building_present": {
+          "title": "Заполнен корпус/строение адреса регистрации",
+          "description": "Заполнен корпус/строение адреса регистрации"
+        },
+        "library.address.pred_city_present": {
+          "title": "Заполнен город адреса регистрации",
+          "description": "Заполнен город адреса регистрации"
+        },
+        "library.address.pred_country_present": {
+          "title": "Заполнена страна адреса регистрации",
+          "description": "Заполнена страна адреса регистрации"
+        },
+        "library.address.pred_house_present": {
+          "title": "Дом адреса регистрации заполнен",
+          "description": "Дом адреса регистрации заполнен"
+        },
+        "library.address.pred_locality_present": {
+          "title": "Заполнен населённый пункт адреса регистрации",
+          "description": "Заполнен населённый пункт адреса регистрации"
+        },
+        "library.address.pred_postal_address_country_present": {
+          "title": "Код страны почтового адреса заполнен",
+          "description": "Код страны почтового адреса заполнен"
+        },
+        "library.address.pred_postal_address_present": {
+          "title": "Почтовый адрес заполнен",
+          "description": "Почтовый адрес заполнен"
+        },
+        "library.address.pred_postal_present": {
+          "title": "Заполнен почтовый индекс адреса регистрации",
+          "description": "Заполнен почтовый индекс адреса регистрации"
+        },
+        "library.address.pred_region_code_present": {
+          "title": "Код региона адреса регистрации заполнен",
+          "description": "Код региона адреса регистрации заполнен"
+        },
+        "library.address.pred_region_name_present": {
+          "title": "Заполнен регион адреса регистрации",
+          "description": "Заполнен регион адреса регистрации"
+        },
+        "library.address.pred_street_present": {
+          "title": "Заполнена улица адреса регистрации",
+          "description": "Заполнена улица адреса регистрации"
+        },
+        "library.address.region_code": {
+          "title": "Проверка кода региона адреса регистрации на длину",
+          "description": "Проверка кода региона адреса регистрации на длину"
+        },
+        "library.address.region_name": {
+          "title": "Проверка региона адреса регистрации",
+          "description": "Проверка региона адреса регистрации"
+        },
+        "library.address.registration_address_required": {
+          "title": "Адрес регистрации обязателен",
+          "description": "Адрес регистрации обязателен"
+        },
+        "library.address.street": {
+          "title": "Проверка улицы адреса регистрации",
+          "description": "Проверка улицы адреса регистрации"
+        },
+        "library.common.beneficiary_type_required": {
+          "title": "Тип бенефициара обязателен",
+          "description": "Тип бенефициара обязателен"
+        },
+        "library.common.beneficiary_type_supported": {
+          "title": "Тип бенефициара должен входить в поддерживаемый enum",
+          "description": "Тип бенефициара должен входить в поддерживаемый enum"
+        },
+        "library.common.cond_email_if_present": {
+          "title": "Если email указан, проверяем формат и длину",
+          "description": "Если email указан, проверяем формат и длину"
+        },
+        "library.common.cond_participation_if_present": {
+          "title": "Если идентификатор участия указан, то проверяем длину",
+          "description": "Если идентификатор участия указан, то проверяем длину"
+        },
+        "library.common.cond_phone_foreign_if_present": {
+          "title": "Если иностранный телефон указан, проверяем формат",
+          "description": "Если иностранный телефон указан, проверяем формат"
+        },
+        "library.common.cond_phone_if_present": {
+          "title": "Если телефон указан, проверяем формат",
+          "description": "Если телефон указан, проверяем формат"
+        },
+        "library.common.cond_status_end_if_present": {
+          "title": "Если дата окончания статуса указана, то проверяем формат, затем порядок",
+          "description": "Если дата окончания статуса указана, то проверяем формат, затем порядок"
+        },
+        "library.common.cond_status_end_order_if_format_ok": {
+          "title": "Если формат endDate корректен, то проверяем порядок дат",
+          "description": "Если формат endDate корректен, то проверяем порядок дат"
+        },
+        "library.common.cond_status_start_if_present": {
+          "title": "Если дата начала статуса указана, то проверяем формат",
+          "description": "Если дата начала статуса указана, то проверяем формат"
+        },
+        "library.common.contacts_any": {
+          "title": "Должен быть указан хотя бы один контакт: телефон РФ или email",
+          "description": "Должен быть указан хотя бы один контакт: телефон РФ или email"
+        },
+        "library.common.email_format": {
+          "title": "Email должен быть валидным",
+          "description": "Email должен быть валидным"
+        },
+        "library.common.email_length": {
+          "title": "Email не должен быть длиннее 320 символов",
+          "description": "Email не должен быть длиннее 320 символов"
+        },
+        "library.common.participation_length": {
+          "title": "Идентификатор основания участия не должен быть длиннее 64 символов",
+          "description": "Идентификатор основания участия не должен быть длиннее 64 символов"
+        },
+        "library.common.participation_required": {
+          "title": "Идентификатор основания участия должен быть заполнен",
+          "description": "Идентификатор основания участия должен быть заполнен"
+        },
+        "library.common.phone_e164": {
+          "title": "Телефон должен быть в формате E.164",
+          "description": "Телефон должен быть в формате E.164"
+        },
+        "library.common.phone_foreign_e164": {
+          "title": "Иностранный телефон должен быть в формате E.164",
+          "description": "Иностранный телефон должен быть в формате E.164"
+        },
+        "library.common.pred_email_present": {
+          "title": "Email указан",
+          "description": "Email указан"
+        },
+        "library.common.pred_participation_present": {
+          "title": "Идентификатор участия указан",
+          "description": "Идентификатор участия указан"
+        },
+        "library.common.pred_phone_foreign_present": {
+          "title": "Иностранный телефон указан",
+          "description": "Иностранный телефон указан"
+        },
+        "library.common.pred_phone_present": {
+          "title": "Телефон указан",
+          "description": "Телефон указан"
+        },
+        "library.common.pred_status_end_format_valid": {
+          "title": "Дата окончания статуса в формате YYYY-MM-DD",
+          "description": "Дата окончания статуса в формате YYYY-MM-DD"
+        },
+        "library.common.pred_status_end_present": {
+          "title": "Дата окончания статуса указана",
+          "description": "Дата окончания статуса указана"
+        },
+        "library.common.pred_status_start_present": {
+          "title": "Дата начала статуса указана",
+          "description": "Дата начала статуса указана"
+        },
+        "library.common.status_end_format": {
+          "title": "Дата окончания статуса должна быть в формате YYYY-MM-DD",
+          "description": "Дата окончания статуса должна быть в формате YYYY-MM-DD"
+        },
+        "library.common.status_end_gt_start": {
+          "title": "Дата окончания статуса должна быть позже даты начала",
+          "description": "Дата окончания статуса должна быть позже даты начала"
+        },
+        "library.common.status_start_format": {
+          "title": "Дата начала статуса должна быть в формате YYYY-MM-DD",
+          "description": "Дата начала статуса должна быть в формате YYYY-MM-DD"
+        },
+        "library.common.status_start_required": {
+          "title": "Дата начала статуса обязательна",
+          "description": "Дата начала статуса обязательна"
+        },
+        "library.documents.cond_domestic_doc_consistency": {
+          "title": "Если код документа относится к отечественной группе, проверяем признак иностранного документа",
+          "description": "Если код документа относится к отечественной группе, проверяем признак иностранного документа"
+        },
+        "library.documents.cond_expire_date_if_present": {
+          "title": "Если дата окончания документа указана, то проверяем формат, затем порядок",
+          "description": "Если дата окончания документа указана, то проверяем формат, затем порядок"
+        },
+        "library.documents.cond_expire_date_order_if_format_ok": {
+          "title": "Если формат expireDate корректен, то проверяем порядок дат",
+          "description": "Если формат expireDate корректен, то проверяем порядок дат"
+        },
+        "library.documents.cond_foreign_doc_consistency": {
+          "title": "Если код документа относится к иностранным документам, проверяем признак иностранного документа",
+          "description": "Если код документа относится к иностранным документам, проверяем признак иностранного документа"
+        },
+        "library.documents.cond_issue_date_gt_birth_if_format_ok": {
+          "title": "Если формат issueDate корректен, то проверяем, что дата не больше текущей даты и позже рождения",
+          "description": "Если формат issueDate корректен, то проверяем, что дата не больше текущей даты и позже рождения"
+        },
+        "library.documents.cond_issue_date_if_present": {
+          "title": "Если дата выдачи указана, то проверяем формат, затем сравниваем с текущей датой и датой рождения",
+          "description": "Если дата выдачи указана, то проверяем формат, затем сравниваем с текущей датой и датой рождения"
+        },
+        "library.documents.cond_issuer_code_format_if_present": {
+          "title": "Если код подразделения указан, то проверяем формат",
+          "description": "Если код подразделения указан, то проверяем формат"
+        },
+        "library.documents.cond_issuer_if_present": {
+          "title": "Если орган выдачи указан, выполняем мягкие проверки качества заполнения",
+          "description": "Если орган выдачи указан, выполняем мягкие проверки качества заполнения"
+        },
+        "library.documents.cond_passport_rf_fields": {
+          "title": "Если тип документа = паспорт РФ, проверяем паспортные поля и код подразделения",
+          "description": "Если тип документа = паспорт РФ, проверяем паспортные поля и код подразделения"
+        },
+        "library.documents.cond_series_format_if_present": {
+          "title": "Если серия указана, то проверяем формат паспорта РФ",
+          "description": "Если серия указана, то проверяем формат паспорта РФ"
+        },
+        "library.documents.date_order": {
+          "title": "Дата окончания действия документа должна быть позже даты выдачи",
+          "description": "Дата окончания действия документа должна быть позже даты выдачи"
+        },
+        "library.documents.expire_date_format": {
+          "title": "Дата окончания действия документа должна быть в формате YYYY-MM-DD",
+          "description": "Дата окончания действия документа должна быть в формате YYYY-MM-DD"
+        },
+        "library.documents.is_foreign_bool": {
+          "title": "Признак иностранного документа должен быть true или false",
+          "description": "Признак иностранного документа должен быть true или false"
+        },
+        "library.documents.is_foreign_required": {
+          "title": "Признак иностранного документа обязателен",
+          "description": "Признак иностранного документа обязателен"
+        },
+        "library.documents.issue_date_format": {
+          "title": "Дата выдачи документа должна быть в формате YYYY-MM-DD",
+          "description": "Дата выдачи документа должна быть в формате YYYY-MM-DD"
+        },
+        "library.documents.issue_date_gt_birth_date": {
+          "title": "Дата выдачи документа должна быть позже даты рождения",
+          "description": "Дата выдачи документа должна быть позже даты рождения"
+        },
+        "library.documents.issue_date_not_future": {
+          "title": "Дата выдачи документа не должна быть больше текущей даты",
+          "description": "Дата выдачи документа не должна быть больше текущей даты"
+        },
+        "library.documents.issue_date_required": {
+          "title": "Дата выдачи документа обязательна",
+          "description": "Дата выдачи документа обязательна"
+        },
+        "library.documents.issuer_code_format": {
+          "title": "Код подразделения должен быть в формате XXX-XXX",
+          "description": "Код подразделения должен быть в формате XXX-XXX"
+        },
+        "library.documents.issuer_code_required": {
+          "title": "Код подразделения должен быть заполнен",
+          "description": "Код подразделения должен быть заполнен"
+        },
+        "library.documents.issuer_no_extra_spaces": {
+          "title": "Орган выдачи не должен содержать лишние пробелы",
+          "description": "Орган выдачи не должен содержать лишние пробелы"
+        },
+        "library.documents.issuer_no_garbage_symbols": {
+          "title": "Орган выдачи не должен содержать мусорные символы",
+          "description": "Орган выдачи не должен содержать мусорные символы"
+        },
+        "library.documents.issuer_required": {
+          "title": "Орган выдачи документа обязателен",
+          "description": "Орган выдачи документа обязателен"
+        },
+        "library.documents.number_passport_rf_format": {
+          "title": "Номер паспорта РФ должен содержать ровно 6 цифр и не быть 000000",
+          "description": "Номер паспорта РФ должен содержать ровно 6 цифр и не быть 000000"
+        },
+        "library.documents.number_required": {
+          "title": "Номер документа обязателен",
+          "description": "Номер документа обязателен"
+        },
+        "library.documents.pred_expire_date_format_valid": {
+          "title": "Дата окончания действия документа в формате YYYY-MM-DD",
+          "description": "Дата окончания действия документа в формате YYYY-MM-DD"
+        },
+        "library.documents.pred_expire_date_present": {
+          "title": "Дата окончания действия документа передана",
+          "description": "Дата окончания действия документа передана"
+        },
+        "library.documents.pred_issue_date_format_valid": {
+          "title": "Дата выдачи документа в формате YYYY-MM-DD",
+          "description": "Дата выдачи документа в формате YYYY-MM-DD"
+        },
+        "library.documents.pred_issue_date_present": {
+          "title": "Дата выдачи документа указана",
+          "description": "Дата выдачи документа указана"
+        },
+        "library.documents.pred_issuer_code_present": {
+          "title": "Код подразделения указан",
+          "description": "Код подразделения указан"
+        },
+        "library.documents.pred_issuer_present": {
+          "title": "Орган выдачи документа указан",
+          "description": "Орган выдачи документа указан"
+        },
+        "library.documents.pred_series_present": {
+          "title": "Серия документа указана",
+          "description": "Серия документа указана"
+        },
+        "library.documents.pred_type_code_domestic_group": {
+          "title": "Код документа относится к отечественной группе документов 21–30",
+          "description": "Код документа относится к отечественной группе документов 21–30"
+        },
+        "library.documents.pred_type_code_foreign_group": {
+          "title": "Код документа относится к группе иностранных документов 31–37, 99",
+          "description": "Код документа относится к группе иностранных документов 31–37, 99"
+        },
+        "library.documents.pred_type_code_passport_rf": {
+          "title": "Тип документа паспорт РФ?",
+          "description": "Тип документа паспорт РФ?"
+        },
+        "library.documents.rule_is_foreign_false": {
+          "title": "Для кодов 21–30 признак иностранного документа должен быть false",
+          "description": "Для кодов 21–30 признак иностранного документа должен быть false"
+        },
+        "library.documents.rule_is_foreign_true": {
+          "title": "Для кодов 31–37 и 99 признак иностранного документа должен быть true",
+          "description": "Для кодов 31–37 и 99 признак иностранного документа должен быть true"
+        },
+        "library.documents.series_passport_rf_format": {
+          "title": "Серия паспорта РФ должна содержать ровно 4 цифры",
+          "description": "Серия паспорта РФ должна содержать ровно 4 цифры"
+        },
+        "library.documents.series_required": {
+          "title": "Серия документа обязательна",
+          "description": "Серия документа обязательна"
+        },
+        "library.documents.type_code_in_dictionary": {
+          "title": "Код типа документа должен входить в допустимый справочник",
+          "description": "Код типа документа должен входить в допустимый справочник"
+        },
+        "library.documents.type_code_not_35": {
+          "title": "Код типа документа не должен быть равен 35",
+          "description": "Код типа документа не должен быть равен 35"
+        },
+        "library.documents.type_code_required": {
+          "title": "Код типа документа обязателен",
+          "description": "Код типа документа обязателен"
+        },
+        "library.documents.type_name_required": {
+          "title": "Наименование типа документа обязательно",
+          "description": "Наименование типа документа обязательно"
+        },
+        "library.fl.birth_date_format": {
+          "title": "Дата рождения должна быть в формате YYYY-MM-DD",
+          "description": "Дата рождения должна быть в формате YYYY-MM-DD"
+        },
+        "library.fl.birth_date_required": {
+          "title": "Дата рождения обязательна",
+          "description": "Дата рождения обязательна"
+        },
+        "library.fl.birth_place_required": {
+          "title": "Место рождения обязательно",
+          "description": "Место рождения обязательно"
+        },
+        "library.fl.citizenship_code_format": {
+          "title": "Код гражданства должен быть двухбуквенным кодом страны",
+          "description": "Код гражданства должен быть двухбуквенным кодом страны"
+        },
+        "library.fl.citizenship_required": {
+          "title": "Код гражданства должен быть заполнен",
+          "description": "Код гражданства должен быть заполнен"
+        },
+        "library.fl.cond_birth_date_if_present": {
+          "title": "Если дата рождения указана, то проверяем формат",
+          "description": "Если дата рождения указана, то проверяем формат"
+        },
+        "library.fl.cond_first_name_if_present": {
+          "title": "Если имя указано, то проверяем формат и длину",
+          "description": "Если имя указано, то проверяем формат и длину"
+        },
+        "library.fl.cond_inn_format_if_length_ok": {
+          "title": "Если длина ИНН корректна, то проверяем повторы и контрольный разряд",
+          "description": "Если длина ИНН корректна, то проверяем повторы и контрольный разряд"
+        },
+        "library.fl.cond_inn_if_present": {
+          "title": "Если ИНН указан, то проверяем длину, затем повторы и контрольный разряд",
+          "description": "Если ИНН указан, то проверяем длину, затем повторы и контрольный разряд"
+        },
+        "library.fl.cond_last_name_if_present": {
+          "title": "Если фамилия указана, то проверяем формат и длину",
+          "description": "Если фамилия указана, то проверяем формат и длину"
+        },
+        "library.fl.cond_middle_name_if_present": {
+          "title": "Если отчество указано, проверяем его длину",
+          "description": "Если отчество указано, проверяем его длину"
+        },
+        "library.fl.first_name_length_max": {
+          "title": "Имя не должно превышать 100 символов",
+          "description": "Имя не должно превышать 100 символов"
+        },
+        "library.fl.first_name_letters_hyphen": {
+          "title": "Имя должно содержать только буквы, пробелы и дефис",
+          "description": "Имя должно содержать только буквы, пробелы и дефис"
+        },
+        "library.fl.first_name_required": {
+          "title": "Имя обязательно",
+          "description": "Имя обязательно"
+        },
+        "library.fl.inn_length_12": {
+          "title": "ИНН ФЛ должен содержать ровно 12 цифр",
+          "description": "ИНН ФЛ должен содержать ровно 12 цифр"
+        },
+        "library.fl.inn_not_repeated": {
+          "title": "ИНН ФЛ не должен состоять из одинаковых цифр или нулей",
+          "description": "ИНН ФЛ не должен состоять из одинаковых цифр или нулей"
+        },
+        "library.fl.inn_required": {
+          "title": "ИНН физического лица-резидента обязателен",
+          "description": "ИНН физического лица-резидента обязателен"
+        },
+        "library.fl.inn_valid": {
+          "title": "ИНН физического лица должен быть корректным",
+          "description": "ИНН физического лица должен быть корректным"
+        },
+        "library.fl.last_name_length_max": {
+          "title": "Фамилия не должна превышать 100 символов",
+          "description": "Фамилия не должна превышать 100 символов"
+        },
+        "library.fl.last_name_letters_hyphen": {
+          "title": "Фамилия должна содержать только буквы, пробелы и дефис",
+          "description": "Фамилия должна содержать только буквы, пробелы и дефис"
+        },
+        "library.fl.last_name_required": {
+          "title": "Фамилия обязательна",
+          "description": "Фамилия обязательна"
+        },
+        "library.fl.middle_name_length": {
+          "title": "Отчество не должно быть длиннее 255 символов",
+          "description": "Отчество не должно быть длиннее 255 символов"
+        },
+        "library.fl.precheck_identity_any": {
+          "title": "Для FL_RESIDENT должен быть указан хотя бы один идентификатор: inn или beneficiary.idDoc.number",
+          "description": "Для FL_RESIDENT должен быть указан хотя бы один идентификатор: inn или beneficiary.idDoc.number"
+        },
+        "library.fl.pred_birth_date_present": {
+          "title": "Дата рождения указана",
+          "description": "Дата рождения указана"
+        },
+        "library.fl.pred_birth_place_present": {
+          "title": "Место рождения указано",
+          "description": "Место рождения указано"
+        },
+        "library.fl.pred_citizenship_present": {
+          "title": "Гражданство указано",
+          "description": "Гражданство указано"
+        },
+        "library.fl.pred_first_name_present": {
+          "title": "Имя указано",
+          "description": "Имя указано"
+        },
+        "library.fl.pred_inn_length_valid": {
+          "title": "ИНН содержит ровно 12 цифр",
+          "description": "ИНН содержит ровно 12 цифр"
+        },
+        "library.fl.pred_inn_present": {
+          "title": "ИНН указан",
+          "description": "ИНН указан"
+        },
+        "library.fl.pred_last_name_present": {
+          "title": "Фамилия указана",
+          "description": "Фамилия указана"
+        },
+        "library.fl.pred_middle_name_present": {
+          "title": "Отчество указано",
+          "description": "Отчество указано"
+        },
+        "library.tax.cond_foreign_address_if_present": {
+          "title": "Если адрес в иностранном государстве указан, проверяем запрет США",
+          "description": "Если адрес в иностранном государстве указан, проверяем запрет США"
+        },
+        "library.tax.cond_foreign_tax_trigger_block": {
+          "title": "Если указан иностранный документ или адрес не РФ, то проверяем данные иностранного налогового резидентства",
+          "description": "Если указан иностранный документ или адрес не РФ, то проверяем данные иностранного налогового резидентства"
+        },
+        "library.tax.cond_phone_foreign_required_if_triggered_and_rf_phone_missing": {
+          "title": "Если телефон РФ не указан и при этом указан иностранный документ или адрес не РФ, то требуем иностранный телефон",
+          "description": "Если телефон РФ не указан и при этом указан иностранный документ или адрес не РФ, то требуем иностранный телефон"
+        },
+        "library.tax.cond_reason_if_present": {
+          "title": "Если указана причина отсутствия иностранного ИНН, проверяем справочник",
+          "description": "Если указана причина отсутствия иностранного ИНН, проверяем справочник"
+        },
+        "library.tax.cond_tin_if_present": {
+          "title": "Если иностранный ИНН указан, проверяем длину",
+          "description": "Если иностранный ИНН указан, проверяем длину"
+        },
+        "library.tax.foreign_address_not_us": {
+          "title": "Адрес в иностранном государстве не должен содержать указание на США",
+          "description": "Адрес в иностранном государстве не должен содержать указание на США"
+        },
+        "library.tax.foreign_address_or_postal_required": {
+          "title": "При foreign-tax trigger должен быть указан адрес в иностранном государстве или почтовый адрес",
+          "description": "При foreign-tax trigger должен быть указан адрес в иностранном государстве или почтовый адрес"
+        },
+        "library.tax.foreign_address_required": {
+          "title": "При foreign-tax trigger требуется адрес в иностранном государстве",
+          "description": "При foreign-tax trigger требуется адрес в иностранном государстве"
+        },
+        "library.tax.foreign_country_format": {
+          "title": "Код страны иностранного налогового резидентства должен быть двухбуквенным",
+          "description": "Код страны иностранного налогового резидентства должен быть двухбуквенным"
+        },
+        "library.tax.foreign_country_not_us": {
+          "title": "Код страны иностранного налогового резидентства не должен быть US",
+          "description": "Код страны иностранного налогового резидентства не должен быть US"
+        },
+        "library.tax.foreign_country_required": {
+          "title": "При иностранном налоговом резидентстве требуется первая страна налогового резидентства",
+          "description": "При иностранном налоговом резидентстве требуется первая страна налогового резидентства"
+        },
+        "library.tax.foreign_tax_resident_bool": {
+          "title": "Признак иностранного налогового резидентства должен быть булевым (true/false)",
+          "description": "Признак иностранного налогового резидентства должен быть булевым (true/false)"
+        },
+        "library.tax.foreign_tin_length": {
+          "title": "Иностранный ИНН не должен быть длиннее 64 символов",
+          "description": "Иностранный ИНН не должен быть длиннее 64 символов"
+        },
+        "library.tax.foreign_tin_or_reason": {
+          "title": "Должен быть указан иностранный ИНН или причина его отсутствия",
+          "description": "Должен быть указан иностранный ИНН или причина его отсутствия"
+        },
+        "library.tax.phone_foreign_required": {
+          "title": "При foreign-trigger и отсутствии телефона РФ требуется иностранный телефон",
+          "description": "При foreign-trigger и отсутствии телефона РФ требуется иностранный телефон"
+        },
+        "library.tax.pred_foreign_address_present": {
+          "title": "Адрес в иностранном государстве заполнен",
+          "description": "Адрес в иностранном государстве заполнен"
+        },
+        "library.tax.pred_foreign_tax_true": {
+          "title": "Указано иностранное налоговое резидентство",
+          "description": "Указано иностранное налоговое резидентство"
+        },
+        "library.tax.pred_is_foreign_id_doc_true": {
+          "title": "Есть признак иностранного документа",
+          "description": "Есть признак иностранного документа"
+        },
+        "library.tax.pred_phone_missing": {
+          "title": "Телефон РФ отсутствует",
+          "description": "Телефон РФ отсутствует"
+        },
+        "library.tax.pred_postal_country_non_ru": {
+          "title": "Страна почтового адреса указана и не равна RU",
+          "description": "Страна почтового адреса указана и не равна RU"
+        },
+        "library.tax.pred_reason_present": {
+          "title": "Указана причина отсутствия иностранного ИНН",
+          "description": "Указана причина отсутствия иностранного ИНН"
+        },
+        "library.tax.pred_registration_country_non_ru": {
+          "title": "Страна адреса регистрации указана и не равна RU",
+          "description": "Страна адреса регистрации указана и не равна RU"
+        },
+        "library.tax.pred_tin_present": {
+          "title": "Иностранный ИНН указан",
+          "description": "Иностранный ИНН указан"
+        },
+        "library.tax.tin_absence_reason_dict": {
+          "title": "Код причины отсутствия иностранного ИНН должен входить в справочник",
+          "description": "Код причины отсутствия иностранного ИНН должен входить в справочник"
+        },
+        "library.tax.us_resident_bool": {
+          "title": "Признак резидентства США должен быть булевым (true/false)",
+          "description": "Признак резидентства США должен быть булевым (true/false)"
+        },
+        "library.tax.us_tax_resident_bool": {
+          "title": "Признак налогового резидентства США должен быть булевым (true/false)",
+          "description": "Признак налогового резидентства США должен быть булевым (true/false)"
+        },
+        "entrypoints.fl_resident.full_validation": {
+          "title": "FL_RESIDENT / full_validation",
+          "description": "FL_RESIDENT / full_validation"
+        },
+        "entrypoints.fl_resident.full_validation.type_is_fl_resident": {
+          "title": "Тип бенефициара должен быть FL_RESIDENT",
+          "description": "Тип бенефициара должен быть FL_RESIDENT"
+        },
+        "internal.fl_resident.blocks.address": {
+          "title": "Проверки адреса регистрации и почтового адреса",
+          "description": "Проверки адреса регистрации и почтового адреса"
+        },
+        "internal.fl_resident.blocks.address.registration_country_if_present": {
+          "title": "Если страна адреса регистрации заполнена, проверяем формат и запрет США",
+          "description": "Если страна адреса регистрации заполнена, проверяем формат и запрет США"
+        },
+        "internal.fl_resident.blocks.address.registration_country_not_us": {
+          "title": "Страна адреса регистрации не должна быть US",
+          "description": "Страна адреса регистрации не должна быть US"
+        },
+        "internal.fl_resident.blocks.contacts_and_status": {
+          "title": "Общие проверки контактов и статуса связи",
+          "description": "Общие проверки контактов и статуса связи"
+        },
+        "internal.fl_resident.blocks.identity_core.birth_place_if_present": {
+          "title": "Если место рождения указано, то проверяем ограничения",
+          "description": "Если место рождения указано, то проверяем ограничения"
+        },
+        "internal.fl_resident.blocks.identity_core.birth_place_not_usa": {
+          "title": "Место рождения не должно содержать указание на США",
+          "description": "Место рождения не должно содержать указание на США"
+        },
+        "internal.fl_resident.blocks.identity_core.citizenship_if_present": {
+          "title": "Если гражданство указано, то проверяем формат и ограничения",
+          "description": "Если гражданство указано, то проверяем формат и ограничения"
+        },
+        "internal.fl_resident.blocks.identity_core.citizenship_not_us": {
+          "title": "Код гражданства не должен быть US",
+          "description": "Код гражданства не должен быть US"
+        },
+        "internal.fl_resident.blocks.identity_core": {
+          "title": "Основные персональные данные",
+          "description": "Основные персональные данные"
+        },
+        "internal.fl_resident.blocks.identity_document": {
+          "title": "Проверка документа удостоверяющего личность",
+          "description": "Проверка документа удостоверяющего личность"
+        },
+        "internal.fl_resident.blocks.tax_flags": {
+          "title": "Регуляторные флаги и иностранное налоговое резидентство",
+          "description": "Регуляторные флаги и иностранное налоговое резидентство"
+        },
+        "internal.fl_resident.blocks.tax_flags.us_resident_not_true": {
+          "title": "Признак резидентства США не должен быть true",
+          "description": "Признак резидентства США не должен быть true"
+        },
+        "internal.fl_resident.blocks.tax_flags.us_tax_resident_not_true": {
+          "title": "Признак налогового резидентства США не должен быть true",
+          "description": "Признак налогового резидентства США не должен быть true"
+        }
+      },
+      "operators": {
+        "not_empty": {
+          "description": "заполнено"
+        },
+        "is_empty": {
+          "description": "не заполнено"
+        },
+        "equals": {
+          "description": "равно значению"
+        },
+        "not_equals": {
+          "description": "не равно значению"
+        },
+        "in_dictionary": {
+          "description": "входит в справочник"
+        },
+        "matches_regex": {
+          "description": "соответствует формату"
+        },
+        "length_max": {
+          "description": "длина не превышает заданное значение"
+        },
+        "length_equals": {
+          "description": "длина равна заданному значению"
+        },
+        "contains": {
+          "description": "содержит подстроку"
+        },
+        "any_filled": {
+          "description": "заполнено хотя бы одно поле из списка"
+        },
+        "field_greater_than_field": {
+          "description": "значение поля больше значения другого поля"
+        },
+        "field_less_than_field": {
+          "description": "значение поля меньше значения другого поля"
+        },
+        "valid_inn": {
+          "description": "ИНН корректен по контрольным разрядам"
+        },
+        "field_equals_field": {
+          "description": "значение поля равно значению другого поля"
+        },
+        "field_not_equals_field": {
+          "description": "значение поля не равно значению другого поля"
+        },
+        "field_less_or_equal_than_field": {
+          "description": "значение поля меньше или равно значению другого поля"
+        },
+        "field_greater_or_equal_than_field": {
+          "description": "значение поля больше или равно значению другого поля"
+        },
+        "valid_ogrn": {
+          "description": "Кастомный оператор проекта"
+        }
+      }
+    }
+  },
+  "artifactCount": 195,
+  "artifacts": [
+    {
+      "id": "beneficiary_types",
+      "type": "dictionary",
+      "description": "Допустимые типы бенефициаров для версии 1",
+      "entries": [
+        "UL_RESIDENT",
+        "UL_NONRESIDENT",
+        "IP_RESIDENT",
+        "IP_NONRESIDENT",
+        "FL_RESIDENT",
+        "FL_NONRESIDENT"
+      ]
+    },
+    {
+      "id": "document_type_codes_fl",
+      "type": "dictionary",
+      "description": "Допустимые коды документов для ФЛ по классификатору: 21–35, 36, 37 и 99",
+      "entries": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "99"
+      ]
+    },
+    {
+      "id": "domestic_document_type_codes_fl",
+      "type": "dictionary",
+      "description": "Коды документов для ФЛ, относящиеся к отечественной группе: 21–30",
+      "entries": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ]
+    },
+    {
+      "id": "foreign_document_type_codes_fl",
+      "type": "dictionary",
+      "description": "Коды документов иностранных граждан / лиц без гражданства для ФЛ: 31–37 и 99",
+      "entries": [
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "99"
+      ]
+    },
+    {
+      "id": "tin_absence_reasons",
+      "type": "dictionary",
+      "description": "Причины отсутствия иностранного ИНН",
+      "entries": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "id": "true_false",
+      "type": "dictionary",
+      "description": "Логические значения boolean",
+      "entries": [
+        {
+          "value": true
+        },
+        {
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "library.address.address_line",
+      "type": "rule",
+      "description": "Проверка адреса регистрации (одной строкой) на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.ADDRESS_LINE.LENGTH",
+      "message": "Адрес регистрации (указан одной строкой) превышает 500 символов",
+      "field": "beneficiary.address.registration.addressLine",
+      "value": 500
+    },
+    {
+      "id": "library.address.apartment",
+      "type": "rule",
+      "description": "Проверка квартиры или офиса адреса регистрации на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.APARTMENT.LENGTH",
+      "message": "Указанная квартира/офис адреса регистрации превышает длину в 32 символа",
+      "field": "beneficiary.address.registration.apartment",
+      "value": 32
+    },
+    {
+      "id": "library.address.building",
+      "type": "rule",
+      "description": "Проверка корпуса/строения адреса регистрации на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.BUILDING.LENGTH",
+      "message": "Корпус/строение адреса регистрации превышает 32 символа",
+      "field": "beneficiary.address.registration.building",
+      "value": 32
+    },
+    {
+      "id": "library.address.city",
+      "type": "rule",
+      "description": "Проверка города адреса регистрации на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.CITY.LENGTH",
+      "message": "Город адреса регистрации слишком длинный",
+      "field": "beneficiary.address.registration.city",
+      "value": 255
+    },
+    {
+      "id": "library.address.cond_address_line_if_present",
+      "type": "condition",
+      "description": "Если адрес регистрации (одной строкой) заполнен, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_address_line_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.address_line"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_apartment_if_present",
+      "type": "condition",
+      "description": "Если заполнена квартира/офис адреса регистрации, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_apartment_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.apartment"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_building_if_present",
+      "type": "condition",
+      "description": "Если заполнен корпус/строение адреса регистрации, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_building_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.building"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_city_if_present",
+      "type": "condition",
+      "description": "Если города адреса регистрации заполнен, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_city_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.city"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_house_if_present",
+      "type": "condition",
+      "description": "Если дом адреса регистрации заполнен, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_house_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.house"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_locality_if_present",
+      "type": "condition",
+      "description": "Если заполнен населённый пункт адреса регистрации, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_locality_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.locality"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_postal_address_country_if_present",
+      "type": "condition",
+      "description": "Если код страны почтового адреса заполнен, проверяем формат",
+      "when": {
+        "all": [
+          "library.address.pred_postal_address_country_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.postal_address_country_format"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_postal_address_if_present",
+      "type": "condition",
+      "description": "Если почтовый адрес указан, проверяем запрет США и код страны почтового адреса",
+      "when": {
+        "all": [
+          "library.address.pred_postal_address_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.postal_address_country_required"
+        },
+        {
+          "condition": "library.address.cond_postal_address_country_if_present"
+        },
+        {
+          "rule": "library.address.postal_address_not_us"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_postal_if_present",
+      "type": "condition",
+      "description": "Если почтовый индекс адреса регистрации заполнен, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_postal_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.postal"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_region_code_if_present",
+      "type": "condition",
+      "description": "Если код региона адреса регистрации заполнен, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_region_code_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.region_code"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_region_name_if_present",
+      "type": "condition",
+      "description": "Если заполнен регион адреса регистрации, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_region_name_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.region_name"
+        }
+      ]
+    },
+    {
+      "id": "library.address.cond_street_if_present",
+      "type": "condition",
+      "description": "Если заполнена улица адреса регистрации, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.address.pred_street_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.street"
+        }
+      ]
+    },
+    {
+      "id": "library.address.country",
+      "type": "rule",
+      "description": "Проверка страны адреса регистрации",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.COUNTRY.FORMAT",
+      "message": "Страна адреса регистрации должна быть в формате ISO 3166-1 alpha-2",
+      "field": "beneficiary.address.registration.countryCode",
+      "value": "^[A-Z]{2}$"
+    },
+    {
+      "id": "library.address.house",
+      "type": "rule",
+      "description": "Проверка дома адреса регистрации на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.HOUSE.LENGTH",
+      "message": "Дом адреса регистрации > 32 символов",
+      "field": "beneficiary.address.registration.house",
+      "value": 32
+    },
+    {
+      "id": "library.address.locality",
+      "type": "rule",
+      "description": "Проверка населённого пункта адреса регистрации на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.LOCALITY.LENGTH",
+      "message": "Населённый пункт адреса регистрации > 255 символов",
+      "field": "beneficiary.address.registration.locality",
+      "value": 255
+    },
+    {
+      "id": "library.address.postal",
+      "type": "rule",
+      "description": "Проверка почтового индекса адреса регистрации",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.POSTAL.LENGTH",
+      "message": "Почтовый индекс адреса регистрации слишком длинный",
+      "field": "beneficiary.address.registration.postalCode",
+      "value": 32
+    },
+    {
+      "id": "library.address.postal_address_country_format",
+      "type": "rule",
+      "description": "Код страны почтового адреса должен быть в формате ISO 3166-1 alpha-2",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.POSTAL_COUNTRY.FORMAT",
+      "message": "Код страны почтового адреса должен быть в формате ISO 3166-1 alpha-2",
+      "field": "beneficiary.contacts.postalAddressCountryCode",
+      "value": "^[A-Z]{2}$"
+    },
+    {
+      "id": "library.address.postal_address_country_required",
+      "type": "rule",
+      "description": "Код страны почтового адреса обязателен, если почтовый адрес заполнен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.POSTAL_COUNTRY.REQUIRED",
+      "message": "Не указан код страны почтового адреса",
+      "field": "beneficiary.contacts.postalAddressCountryCode"
+    },
+    {
+      "id": "library.address.postal_address_not_us",
+      "type": "rule",
+      "description": "Почтовый адрес не должен содержать указание на США",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "EXCEPTION",
+      "code": "BEN.CONTACTS.POSTAL.NOT_US",
+      "message": "Почтовый адрес не должен указывать на США",
+      "field": "beneficiary.contacts.postalAddress",
+      "value": "^(?!.*(?:США|USA|Usa|usa|US|U\\.S\\.)).*$"
+    },
+    {
+      "id": "library.address.pred_address_line_present",
+      "type": "rule",
+      "description": "Заполнен адрес регистрации (одной строкой)",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.addressLine"
+    },
+    {
+      "id": "library.address.pred_apartment_present",
+      "type": "rule",
+      "description": "Заполнена квартира или офис адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.apartment"
+    },
+    {
+      "id": "library.address.pred_building_present",
+      "type": "rule",
+      "description": "Заполнен корпус/строение адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.building"
+    },
+    {
+      "id": "library.address.pred_city_present",
+      "type": "rule",
+      "description": "Заполнен город адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.city"
+    },
+    {
+      "id": "library.address.pred_country_present",
+      "type": "rule",
+      "description": "Заполнена страна адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.countryCode"
+    },
+    {
+      "id": "library.address.pred_house_present",
+      "type": "rule",
+      "description": "Дом адреса регистрации заполнен",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.house"
+    },
+    {
+      "id": "library.address.pred_locality_present",
+      "type": "rule",
+      "description": "Заполнен населённый пункт адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.locality"
+    },
+    {
+      "id": "library.address.pred_postal_address_country_present",
+      "type": "rule",
+      "description": "Код страны почтового адреса заполнен",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.contacts.postalAddressCountryCode"
+    },
+    {
+      "id": "library.address.pred_postal_address_present",
+      "type": "rule",
+      "description": "Почтовый адрес заполнен",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.contacts.postalAddress"
+    },
+    {
+      "id": "library.address.pred_postal_present",
+      "type": "rule",
+      "description": "Заполнен почтовый индекс адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.postalCode"
+    },
+    {
+      "id": "library.address.pred_region_code_present",
+      "type": "rule",
+      "description": "Код региона адреса регистрации заполнен",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.regionCode"
+    },
+    {
+      "id": "library.address.pred_region_name_present",
+      "type": "rule",
+      "description": "Заполнен регион адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.regionName"
+    },
+    {
+      "id": "library.address.pred_street_present",
+      "type": "rule",
+      "description": "Заполнена улица адреса регистрации",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.address.registration.street"
+    },
+    {
+      "id": "library.address.region_code",
+      "type": "rule",
+      "description": "Проверка кода региона адреса регистрации на длину",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.REGION_CODE.LENGTH",
+      "message": "Код региона адреса регистрации слишком длинный",
+      "field": "beneficiary.address.registration.regionCode",
+      "value": 32
+    },
+    {
+      "id": "library.address.region_name",
+      "type": "rule",
+      "description": "Проверка региона адреса регистрации",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.REGION_NAME.LENGTH",
+      "message": "Наименование региона адреса регистрации > 255 символов",
+      "field": "beneficiary.address.registration.regionName",
+      "value": 255
+    },
+    {
+      "id": "library.address.registration_address_required",
+      "type": "rule",
+      "description": "Адрес регистрации обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "FL.ADDRESS.REGISTRATION.REQUIRED",
+      "message": "Не указан адрес регистрации",
+      "field": "beneficiary.address.registration.addressLine"
+    },
+    {
+      "id": "library.address.street",
+      "type": "rule",
+      "description": "Проверка улицы адреса регистрации",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.STREET.LENGTH",
+      "message": "Улица адреса регистрации > 255 символов",
+      "field": "beneficiary.address.registration.street",
+      "value": 255
+    },
+    {
+      "id": "library.common.beneficiary_type_required",
+      "type": "rule",
+      "description": "Тип бенефициара обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "EXCEPTION",
+      "code": "BEN.TYPE.REQUIRED",
+      "message": "Не указан beneficiary.type",
+      "field": "beneficiary.type"
+    },
+    {
+      "id": "library.common.beneficiary_type_supported",
+      "type": "rule",
+      "description": "Тип бенефициара должен входить в поддерживаемый enum",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "EXCEPTION",
+      "code": "BEN.TYPE.UNSUPPORTED",
+      "message": "Неподдерживаемый тип бенефициара",
+      "field": "beneficiary.type",
+      "dictionary": {
+        "type": "static",
+        "id": "beneficiary_types"
+      }
+    },
+    {
+      "id": "library.common.cond_email_if_present",
+      "type": "condition",
+      "description": "Если email указан, проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.common.pred_email_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.email_format"
+        },
+        {
+          "rule": "library.common.email_length"
+        }
+      ]
+    },
+    {
+      "id": "library.common.cond_participation_if_present",
+      "type": "condition",
+      "description": "Если идентификатор участия указан, то проверяем длину",
+      "when": {
+        "all": [
+          "library.common.pred_participation_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.participation_length"
+        }
+      ]
+    },
+    {
+      "id": "library.common.cond_phone_foreign_if_present",
+      "type": "condition",
+      "description": "Если иностранный телефон указан, проверяем формат",
+      "when": {
+        "all": [
+          "library.common.pred_phone_foreign_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.phone_foreign_e164"
+        }
+      ]
+    },
+    {
+      "id": "library.common.cond_phone_if_present",
+      "type": "condition",
+      "description": "Если телефон указан, проверяем формат",
+      "when": {
+        "all": [
+          "library.common.pred_phone_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.phone_e164"
+        }
+      ]
+    },
+    {
+      "id": "library.common.cond_status_end_if_present",
+      "type": "condition",
+      "description": "Если дата окончания статуса указана, то проверяем формат, затем порядок",
+      "when": {
+        "all": [
+          "library.common.pred_status_end_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.status_end_format"
+        },
+        {
+          "condition": "library.common.cond_status_end_order_if_format_ok"
+        }
+      ]
+    },
+    {
+      "id": "library.common.cond_status_end_order_if_format_ok",
+      "type": "condition",
+      "description": "Если формат endDate корректен, то проверяем порядок дат",
+      "when": {
+        "all": [
+          "library.common.pred_status_end_format_valid"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.status_end_gt_start"
+        }
+      ]
+    },
+    {
+      "id": "library.common.cond_status_start_if_present",
+      "type": "condition",
+      "description": "Если дата начала статуса указана, то проверяем формат",
+      "when": {
+        "all": [
+          "library.common.pred_status_start_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.common.status_start_format"
+        }
+      ]
+    },
+    {
+      "id": "library.common.contacts_any",
+      "type": "rule",
+      "description": "Должен быть указан хотя бы один контакт: телефон РФ или email",
+      "role": "check",
+      "operator": "any_filled",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.MIN_ONE",
+      "message": "Необходимо заполнить хотя бы один контакт: телефон РФ или email",
+      "fields": [
+        "beneficiary.contacts.phone",
+        "beneficiary.contacts.email"
+      ],
+      "paths": [
+        "beneficiary.contacts.phone",
+        "beneficiary.contacts.email"
+      ]
+    },
+    {
+      "id": "library.common.email_format",
+      "type": "rule",
+      "description": "Email должен быть валидным",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.EMAIL.FORMAT",
+      "message": "Некорректный email",
+      "field": "beneficiary.contacts.email",
+      "value": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+    },
+    {
+      "id": "library.common.email_length",
+      "type": "rule",
+      "description": "Email не должен быть длиннее 320 символов",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.EMAIL.LENGTH",
+      "message": "Email превышает 320 символов",
+      "field": "beneficiary.contacts.email",
+      "value": 320
+    },
+    {
+      "id": "library.common.participation_length",
+      "type": "rule",
+      "description": "Идентификатор основания участия не должен быть длиннее 64 символов",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.PARTICIPATION.LENGTH",
+      "message": "Идентификатор основания участия превышает 64 символа",
+      "field": "beneficiary.participationId",
+      "value": 64
+    },
+    {
+      "id": "library.common.participation_required",
+      "type": "rule",
+      "description": "Идентификатор основания участия должен быть заполнен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.PARTICIPATION.REQUIRED",
+      "message": "Не указан идентификатор основания участия",
+      "field": "beneficiary.participationId"
+    },
+    {
+      "id": "library.common.phone_e164",
+      "type": "rule",
+      "description": "Телефон должен быть в формате E.164",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.PHONE.E164",
+      "message": "Телефон должен быть в формате E.164",
+      "field": "beneficiary.contacts.phone",
+      "value": "^\\+?[1-9]\\d{7,14}$"
+    },
+    {
+      "id": "library.common.phone_foreign_e164",
+      "type": "rule",
+      "description": "Иностранный телефон должен быть в формате E.164",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.PHONE_FOREIGN.E164",
+      "message": "Иностранный телефон должен быть в формате E.164",
+      "field": "beneficiary.contacts.phoneForeign",
+      "value": "^\\+?[1-9]\\d{7,14}$"
+    },
+    {
+      "id": "library.common.pred_email_present",
+      "type": "rule",
+      "description": "Email указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.contacts.email"
+    },
+    {
+      "id": "library.common.pred_participation_present",
+      "type": "rule",
+      "description": "Идентификатор участия указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.participationId"
+    },
+    {
+      "id": "library.common.pred_phone_foreign_present",
+      "type": "rule",
+      "description": "Иностранный телефон указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.contacts.phoneForeign"
+    },
+    {
+      "id": "library.common.pred_phone_present",
+      "type": "rule",
+      "description": "Телефон указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.contacts.phone"
+    },
+    {
+      "id": "library.common.pred_status_end_format_valid",
+      "type": "rule",
+      "description": "Дата окончания статуса в формате YYYY-MM-DD",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.status.endDate",
+      "value": "^\\\\d{4}-\\\\d{2}-\\\\d{2}$"
+    },
+    {
+      "id": "library.common.pred_status_end_present",
+      "type": "rule",
+      "description": "Дата окончания статуса указана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.status.endDate"
+    },
+    {
+      "id": "library.common.pred_status_start_present",
+      "type": "rule",
+      "description": "Дата начала статуса указана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.status.startDate"
+    },
+    {
+      "id": "library.common.status_end_format",
+      "type": "rule",
+      "description": "Дата окончания статуса должна быть в формате YYYY-MM-DD",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.STATUS.END.FORMAT",
+      "message": "beneficiary.status.endDate должна быть в формате YYYY-MM-DD",
+      "field": "beneficiary.status.endDate",
+      "value": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    {
+      "id": "library.common.status_end_gt_start",
+      "type": "rule",
+      "description": "Дата окончания статуса должна быть позже даты начала",
+      "role": "check",
+      "operator": "field_greater_than_field",
+      "level": "ERROR",
+      "code": "BEN.STATUS.END.ORDER",
+      "message": "Дата окончания статуса должна быть позже beneficiary.status.startDate",
+      "field": "beneficiary.status.endDate",
+      "value_field": "beneficiary.status.startDate"
+    },
+    {
+      "id": "library.common.status_start_format",
+      "type": "rule",
+      "description": "Дата начала статуса должна быть в формате YYYY-MM-DD",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.STATUS.START.FORMAT",
+      "message": "beneficiary.status.startDate должна быть в формате YYYY-MM-DD",
+      "field": "beneficiary.status.startDate",
+      "value": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    {
+      "id": "library.common.status_start_required",
+      "type": "rule",
+      "description": "Дата начала статуса обязательна",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.STATUS.START.REQUIRED",
+      "message": "Не указана beneficiary.status.startDate",
+      "field": "beneficiary.status.startDate"
+    },
+    {
+      "id": "library.documents.cond_domestic_doc_consistency",
+      "type": "condition",
+      "description": "Если код документа относится к отечественной группе, проверяем признак иностранного документа",
+      "when": {
+        "all": [
+          "library.documents.pred_type_code_domestic_group"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.rule_is_foreign_false"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_expire_date_if_present",
+      "type": "condition",
+      "description": "Если дата окончания документа указана, то проверяем формат, затем порядок",
+      "when": {
+        "all": [
+          "library.documents.pred_expire_date_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.expire_date_format"
+        },
+        {
+          "condition": "library.documents.cond_expire_date_order_if_format_ok"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_expire_date_order_if_format_ok",
+      "type": "condition",
+      "description": "Если формат expireDate корректен, то проверяем порядок дат",
+      "when": {
+        "all": [
+          "library.documents.pred_expire_date_format_valid"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.date_order"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_foreign_doc_consistency",
+      "type": "condition",
+      "description": "Если код документа относится к иностранным документам, проверяем признак иностранного документа",
+      "when": {
+        "all": [
+          "library.documents.pred_type_code_foreign_group"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.rule_is_foreign_true"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_issue_date_gt_birth_if_format_ok",
+      "type": "condition",
+      "description": "Если формат issueDate корректен, то проверяем, что дата не больше текущей даты и позже рождения",
+      "when": {
+        "all": [
+          "library.documents.pred_issue_date_format_valid"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.issue_date_not_future"
+        },
+        {
+          "rule": "library.documents.issue_date_gt_birth_date"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_issue_date_if_present",
+      "type": "condition",
+      "description": "Если дата выдачи указана, то проверяем формат, затем сравниваем с текущей датой и датой рождения",
+      "when": {
+        "all": [
+          "library.documents.pred_issue_date_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.issue_date_format"
+        },
+        {
+          "rule": "library.documents.issue_date_not_future"
+        },
+        {
+          "condition": "library.documents.cond_issue_date_gt_birth_if_format_ok"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_issuer_code_format_if_present",
+      "type": "condition",
+      "description": "Если код подразделения указан, то проверяем формат",
+      "when": {
+        "all": [
+          "library.documents.pred_issuer_code_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.issuer_code_format"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_issuer_if_present",
+      "type": "condition",
+      "description": "Если орган выдачи указан, выполняем мягкие проверки качества заполнения",
+      "when": "library.documents.pred_issuer_present",
+      "steps": [
+        {
+          "rule": "library.documents.issuer_no_extra_spaces"
+        },
+        {
+          "rule": "library.documents.issuer_no_garbage_symbols"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_passport_rf_fields",
+      "type": "condition",
+      "description": "Если тип документа = паспорт РФ, проверяем паспортные поля и код подразделения",
+      "when": {
+        "all": [
+          "library.documents.pred_type_code_passport_rf"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.series_required"
+        },
+        {
+          "condition": "library.documents.cond_series_format_if_present"
+        },
+        {
+          "rule": "library.documents.number_passport_rf_format"
+        },
+        {
+          "rule": "library.documents.issuer_code_required"
+        },
+        {
+          "condition": "library.documents.cond_issuer_code_format_if_present"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.cond_series_format_if_present",
+      "type": "condition",
+      "description": "Если серия указана, то проверяем формат паспорта РФ",
+      "when": {
+        "all": [
+          "library.documents.pred_series_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.documents.series_passport_rf_format"
+        }
+      ]
+    },
+    {
+      "id": "library.documents.date_order",
+      "type": "rule",
+      "description": "Дата окончания действия документа должна быть позже даты выдачи",
+      "role": "check",
+      "operator": "field_greater_than_field",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.DATE.ORDER",
+      "message": "Дата окончания действия документа должна быть позже даты выдачи",
+      "field": "beneficiary.idDoc.expireDate",
+      "value_field": "beneficiary.idDoc.issueDate"
+    },
+    {
+      "id": "library.documents.expire_date_format",
+      "type": "rule",
+      "description": "Дата окончания действия документа должна быть в формате YYYY-MM-DD",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.EXPIRE_DATE.FORMAT",
+      "message": "Дата окончания действия документа должна быть в формате YYYY-MM-DD",
+      "field": "beneficiary.idDoc.expireDate",
+      "value": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    {
+      "id": "library.documents.is_foreign_bool",
+      "type": "rule",
+      "description": "Признак иностранного документа должен быть true или false",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.IS_FOREIGN.BOOL",
+      "message": "Признак beneficiary.idDoc.isForeignIdDoc должен быть true или false",
+      "field": "beneficiary.idDoc.isForeignIdDoc",
+      "dictionary": {
+        "type": "static",
+        "id": "true_false"
+      }
+    },
+    {
+      "id": "library.documents.is_foreign_required",
+      "type": "rule",
+      "description": "Признак иностранного документа обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.IS_FOREIGN.REQUIRED",
+      "message": "Необходимо заполнить beneficiary.idDoc.isForeignIdDoc",
+      "field": "beneficiary.idDoc.isForeignIdDoc"
+    },
+    {
+      "id": "library.documents.issue_date_format",
+      "type": "rule",
+      "description": "Дата выдачи документа должна быть в формате YYYY-MM-DD",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUE_DATE.FORMAT",
+      "message": "Дата выдачи документа должна быть в формате YYYY-MM-DD",
+      "field": "beneficiary.idDoc.issueDate",
+      "value": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    {
+      "id": "library.documents.issue_date_gt_birth_date",
+      "type": "rule",
+      "description": "Дата выдачи документа должна быть позже даты рождения",
+      "role": "check",
+      "operator": "field_greater_than_field",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUE_DATE.GT_BIRTH_DATE",
+      "message": "Дата выдачи документа должна быть позже даты рождения",
+      "field": "beneficiary.idDoc.issueDate",
+      "value_field": "beneficiary.fl.birthDate"
+    },
+    {
+      "id": "library.documents.issue_date_not_future",
+      "type": "rule",
+      "description": "Дата выдачи документа не должна быть больше текущей даты",
+      "role": "check",
+      "operator": "field_less_or_equal_than_field",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUE_DATE.NOT_FUTURE",
+      "message": "Дата выдачи документа не должна быть больше текущей даты",
+      "field": "beneficiary.idDoc.issueDate",
+      "value_field": "$context.currentDate"
+    },
+    {
+      "id": "library.documents.issue_date_required",
+      "type": "rule",
+      "description": "Дата выдачи документа обязательна",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUE_DATE.REQUIRED",
+      "message": "Не указана дата выдачи документа",
+      "field": "beneficiary.idDoc.issueDate"
+    },
+    {
+      "id": "library.documents.issuer_code_format",
+      "type": "rule",
+      "description": "Код подразделения должен быть в формате XXX-XXX",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUER_CODE.FORMAT",
+      "message": "Код подразделения должен быть в формате XXX-XXX и не может быть 000-000",
+      "field": "beneficiary.idDoc.issuerCode",
+      "value": "^(?!000-000)\\d{3}-\\d{3}$"
+    },
+    {
+      "id": "library.documents.issuer_code_required",
+      "type": "rule",
+      "description": "Код подразделения должен быть заполнен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUER_CODE.REQUIRED",
+      "message": "Необходимо заполнить код подразделения документа",
+      "field": "beneficiary.idDoc.issuerCode"
+    },
+    {
+      "id": "library.documents.issuer_no_extra_spaces",
+      "type": "rule",
+      "description": "Орган выдачи не должен содержать лишние пробелы",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "WARNING",
+      "code": "BEN.IDDOC.ISSUER.SPACES",
+      "message": "Поле beneficiary.idDoc.issuer содержит лишние пробелы",
+      "field": "beneficiary.idDoc.issuer",
+      "value": "^(?!\\s)(?!.*\\s$)(?!.*\\s{2,}).+$"
+    },
+    {
+      "id": "library.documents.issuer_no_garbage_symbols",
+      "type": "rule",
+      "description": "Орган выдачи не должен содержать мусорные символы",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "WARNING",
+      "code": "BEN.IDDOC.ISSUER.SYMBOLS",
+      "message": "Поле beneficiary.idDoc.issuer содержит недопустимые символы",
+      "field": "beneficiary.idDoc.issuer",
+      "value": "^[A-Za-zА-Яа-яЁё0-9№.\\/\\- ]+$"
+    },
+    {
+      "id": "library.documents.issuer_required",
+      "type": "rule",
+      "description": "Орган выдачи документа обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.ISSUER.REQUIRED",
+      "message": "Не указан орган, выдавший документ",
+      "field": "beneficiary.idDoc.issuer"
+    },
+    {
+      "id": "library.documents.number_passport_rf_format",
+      "type": "rule",
+      "description": "Номер паспорта РФ должен содержать ровно 6 цифр и не быть 000000",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.NUMBER.PASSPORT_RF.FORMAT",
+      "message": "Номер паспорта РФ должен содержать ровно 6 цифр и не может быть 000000",
+      "field": "beneficiary.idDoc.number",
+      "value": "^(?!000000)\\d{6}$"
+    },
+    {
+      "id": "library.documents.number_required",
+      "type": "rule",
+      "description": "Номер документа обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.NUMBER.REQUIRED",
+      "message": "Не указан номер документа",
+      "field": "beneficiary.idDoc.number"
+    },
+    {
+      "id": "library.documents.pred_expire_date_format_valid",
+      "type": "rule",
+      "description": "Дата окончания действия документа в формате YYYY-MM-DD",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.idDoc.expireDate",
+      "value": "^\\\\d{4}-\\\\d{2}-\\\\d{2}$"
+    },
+    {
+      "id": "library.documents.pred_expire_date_present",
+      "type": "rule",
+      "description": "Дата окончания действия документа передана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.idDoc.expireDate"
+    },
+    {
+      "id": "library.documents.pred_issue_date_format_valid",
+      "type": "rule",
+      "description": "Дата выдачи документа в формате YYYY-MM-DD",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.idDoc.issueDate",
+      "value": "^\\\\d{4}-\\\\d{2}-\\\\d{2}$"
+    },
+    {
+      "id": "library.documents.pred_issue_date_present",
+      "type": "rule",
+      "description": "Дата выдачи документа указана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.idDoc.issueDate"
+    },
+    {
+      "id": "library.documents.pred_issuer_code_present",
+      "type": "rule",
+      "description": "Код подразделения указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.idDoc.issuerCode"
+    },
+    {
+      "id": "library.documents.pred_issuer_present",
+      "type": "rule",
+      "description": "Орган выдачи документа указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.idDoc.issuer"
+    },
+    {
+      "id": "library.documents.pred_series_present",
+      "type": "rule",
+      "description": "Серия документа указана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.idDoc.series"
+    },
+    {
+      "id": "library.documents.pred_type_code_domestic_group",
+      "type": "rule",
+      "description": "Код документа относится к отечественной группе документов 21–30",
+      "role": "predicate",
+      "operator": "in_dictionary",
+      "field": "beneficiary.idDoc.typeCode",
+      "dictionary": {
+        "type": "static",
+        "id": "domestic_document_type_codes_fl"
+      }
+    },
+    {
+      "id": "library.documents.pred_type_code_foreign_group",
+      "type": "rule",
+      "description": "Код документа относится к группе иностранных документов 31–37, 99",
+      "role": "predicate",
+      "operator": "in_dictionary",
+      "field": "beneficiary.idDoc.typeCode",
+      "dictionary": {
+        "type": "static",
+        "id": "foreign_document_type_codes_fl"
+      }
+    },
+    {
+      "id": "library.documents.pred_type_code_passport_rf",
+      "type": "rule",
+      "description": "Тип документа паспорт РФ?",
+      "role": "predicate",
+      "operator": "equals",
+      "field": "beneficiary.idDoc.typeCode",
+      "value": "21"
+    },
+    {
+      "id": "library.documents.rule_is_foreign_false",
+      "type": "rule",
+      "description": "Для кодов 21–30 признак иностранного документа должен быть false",
+      "role": "check",
+      "operator": "equals",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.IS_FOREIGN.CONSISTENT.DOMESTIC",
+      "message": "Для кодов документов 21–30 признак beneficiary.idDoc.isForeignIdDoc должен быть false",
+      "field": "beneficiary.idDoc.isForeignIdDoc",
+      "value": false
+    },
+    {
+      "id": "library.documents.rule_is_foreign_true",
+      "type": "rule",
+      "description": "Для кодов 31–37 и 99 признак иностранного документа должен быть true",
+      "role": "check",
+      "operator": "equals",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.IS_FOREIGN.CONSISTENT",
+      "message": "Для кодов документов 31–37 и 99 признак beneficiary.idDoc.isForeignIdDoc должен быть true",
+      "field": "beneficiary.idDoc.isForeignIdDoc",
+      "value": true
+    },
+    {
+      "id": "library.documents.series_passport_rf_format",
+      "type": "rule",
+      "description": "Серия паспорта РФ должна содержать ровно 4 цифры",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.SERIES.PASSPORT_RF.FORMAT",
+      "message": "Серия паспорта РФ должна содержать 4 цифры и не может быть 0000",
+      "field": "beneficiary.idDoc.series",
+      "value": "^(?!0000)\\d{4}$"
+    },
+    {
+      "id": "library.documents.series_required",
+      "type": "rule",
+      "description": "Серия документа обязательна",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.SERIES.REQUIRED",
+      "message": "Не указана серия документа",
+      "field": "beneficiary.idDoc.series"
+    },
+    {
+      "id": "library.documents.type_code_in_dictionary",
+      "type": "rule",
+      "description": "Код типа документа должен входить в допустимый справочник",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.TYPE_CODE.DICT",
+      "message": "Код типа документа должен входить в допустимый классификатор",
+      "field": "beneficiary.idDoc.typeCode",
+      "dictionary": {
+        "type": "static",
+        "id": "document_type_codes_fl"
+      }
+    },
+    {
+      "id": "library.documents.type_code_not_35",
+      "type": "rule",
+      "description": "Код типа документа не должен быть равен 35",
+      "role": "check",
+      "operator": "not_equals",
+      "level": "EXCEPTION",
+      "code": "BEN.IDDOC.TYPE_CODE.NOT_35",
+      "message": "Код типа документа 35 не допускается для регистрации бенефициара",
+      "field": "beneficiary.idDoc.typeCode",
+      "value": "35"
+    },
+    {
+      "id": "library.documents.type_code_required",
+      "type": "rule",
+      "description": "Код типа документа обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.TYPE_CODE.REQUIRED",
+      "message": "Не указан код типа документа",
+      "field": "beneficiary.idDoc.typeCode"
+    },
+    {
+      "id": "library.documents.type_name_required",
+      "type": "rule",
+      "description": "Наименование типа документа обязательно",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.IDDOC.TYPE_NAME.REQUIRED",
+      "message": "Не указано наименование типа документа",
+      "field": "beneficiary.idDoc.typeName"
+    },
+    {
+      "id": "library.fl.birth_date_format",
+      "type": "rule",
+      "description": "Дата рождения должна быть в формате YYYY-MM-DD",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "FL.BIRTH_DATE.FORMAT",
+      "message": "Дата рождения должна быть в формате YYYY-MM-DD",
+      "field": "beneficiary.fl.birthDate",
+      "value": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    {
+      "id": "library.fl.birth_date_required",
+      "type": "rule",
+      "description": "Дата рождения обязательна",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "FL.BIRTH_DATE.REQUIRED",
+      "message": "Не указана дата рождения физического лица",
+      "field": "beneficiary.fl.birthDate"
+    },
+    {
+      "id": "library.fl.birth_place_required",
+      "type": "rule",
+      "description": "Место рождения обязательно",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "FL.BIRTH_PLACE.REQUIRED",
+      "message": "Не указано место рождения",
+      "field": "beneficiary.fl.birthPlace"
+    },
+    {
+      "id": "library.fl.citizenship_code_format",
+      "type": "rule",
+      "description": "Код гражданства должен быть двухбуквенным кодом страны",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "FL.CITIZENSHIP_CODE.FORMAT",
+      "message": "Код гражданства должен быть в формате ISO 3166-1 alpha-2",
+      "field": "beneficiary.fl.citizenshipCode",
+      "value": "^[A-Z]{2}$"
+    },
+    {
+      "id": "library.fl.citizenship_required",
+      "type": "rule",
+      "description": "Код гражданства должен быть заполнен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "EXCEPTION",
+      "code": "FL.CITIZENSHIP.REQUIRED",
+      "message": "Необходимо заполнить код гражданства",
+      "field": "beneficiary.fl.citizenshipCode"
+    },
+    {
+      "id": "library.fl.cond_birth_date_if_present",
+      "type": "condition",
+      "description": "Если дата рождения указана, то проверяем формат",
+      "when": {
+        "all": [
+          "library.fl.pred_birth_date_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.birth_date_format"
+        }
+      ]
+    },
+    {
+      "id": "library.fl.cond_first_name_if_present",
+      "type": "condition",
+      "description": "Если имя указано, то проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.fl.pred_first_name_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.first_name_length_max"
+        },
+        {
+          "rule": "library.fl.first_name_letters_hyphen"
+        }
+      ]
+    },
+    {
+      "id": "library.fl.cond_inn_format_if_length_ok",
+      "type": "condition",
+      "description": "Если длина ИНН корректна, то проверяем повторы и контрольный разряд",
+      "when": {
+        "all": [
+          "library.fl.pred_inn_length_valid"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.inn_not_repeated"
+        },
+        {
+          "rule": "library.fl.inn_valid"
+        }
+      ]
+    },
+    {
+      "id": "library.fl.cond_inn_if_present",
+      "type": "condition",
+      "description": "Если ИНН указан, то проверяем длину, затем повторы и контрольный разряд",
+      "when": {
+        "all": [
+          "library.fl.pred_inn_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.inn_length_12"
+        },
+        {
+          "condition": "library.fl.cond_inn_format_if_length_ok"
+        }
+      ]
+    },
+    {
+      "id": "library.fl.cond_last_name_if_present",
+      "type": "condition",
+      "description": "Если фамилия указана, то проверяем формат и длину",
+      "when": {
+        "all": [
+          "library.fl.pred_last_name_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.last_name_length_max"
+        },
+        {
+          "rule": "library.fl.last_name_letters_hyphen"
+        }
+      ]
+    },
+    {
+      "id": "library.fl.cond_middle_name_if_present",
+      "type": "condition",
+      "description": "Если отчество указано, проверяем его длину",
+      "when": {
+        "all": [
+          "library.fl.pred_middle_name_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.middle_name_length"
+        }
+      ]
+    },
+    {
+      "id": "library.fl.first_name_length_max",
+      "type": "rule",
+      "description": "Имя не должно превышать 100 символов",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "FL.FIRST_NAME.LENGTH_MAX",
+      "message": "Имя не должно превышать 100 символов",
+      "field": "beneficiary.fl.firstName",
+      "value": 100
+    },
+    {
+      "id": "library.fl.first_name_letters_hyphen",
+      "type": "rule",
+      "description": "Имя должно содержать только буквы, пробелы и дефис",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "FL.FIRST_NAME.FORMAT",
+      "message": "Допустимы буквы, пробел и дефис; начальные и конечные пробелы не допускаются",
+      "field": "beneficiary.fl.firstName",
+      "value": "^[A-Za-zА-Яа-яЁё](?:[A-Za-zА-Яа-яЁё -]*[A-Za-zА-Яа-яЁё])?$"
+    },
+    {
+      "id": "library.fl.first_name_required",
+      "type": "rule",
+      "description": "Имя обязательно",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "FL.FIRST_NAME.REQUIRED",
+      "message": "Не указано имя физического лица",
+      "field": "beneficiary.fl.firstName"
+    },
+    {
+      "id": "library.fl.inn_length_12",
+      "type": "rule",
+      "description": "ИНН ФЛ должен содержать ровно 12 цифр",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "FL.INN.LENGTH_12",
+      "message": "ИНН ФЛ должен содержать ровно 12 цифр",
+      "field": "beneficiary.inn",
+      "value": "^\\d{12}$"
+    },
+    {
+      "id": "library.fl.inn_not_repeated",
+      "type": "rule",
+      "description": "ИНН ФЛ не должен состоять из одинаковых цифр или нулей",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "FL.INN.NOT_REPEATED",
+      "message": "ИНН ФЛ не должен состоять из одинаковых цифр или нулей",
+      "field": "beneficiary.inn",
+      "value": "^(?!([0-9])\\1{11}$)\\d{12}$"
+    },
+    {
+      "id": "library.fl.inn_required",
+      "type": "rule",
+      "description": "ИНН физического лица-резидента обязателен",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "FL.INN.REQUIRED",
+      "message": "Не указан ИНН физического лица",
+      "field": "beneficiary.inn"
+    },
+    {
+      "id": "library.fl.inn_valid",
+      "type": "rule",
+      "description": "ИНН физического лица должен быть корректным",
+      "role": "check",
+      "operator": "valid_inn",
+      "level": "ERROR",
+      "code": "FL.INN.INVALID",
+      "message": "Некорректный ИНН физического лица",
+      "field": "beneficiary.inn"
+    },
+    {
+      "id": "library.fl.last_name_length_max",
+      "type": "rule",
+      "description": "Фамилия не должна превышать 100 символов",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "FL.LAST_NAME.LENGTH_MAX",
+      "message": "Фамилия не должна превышать 100 символов",
+      "field": "beneficiary.fl.lastName",
+      "value": 100
+    },
+    {
+      "id": "library.fl.last_name_letters_hyphen",
+      "type": "rule",
+      "description": "Фамилия должна содержать только буквы, пробелы и дефис",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "FL.LAST_NAME.FORMAT",
+      "message": "Допустимы буквы, пробел и дефис; начальные и конечные пробелы не допускаются",
+      "field": "beneficiary.fl.lastName",
+      "value": "^[A-Za-zА-Яа-яЁё](?:[A-Za-zА-Яа-яЁё -]*[A-Za-zА-Яа-яЁё])?$"
+    },
+    {
+      "id": "library.fl.last_name_required",
+      "type": "rule",
+      "description": "Фамилия обязательна",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "FL.LAST_NAME.REQUIRED",
+      "message": "Не указана фамилия физического лица",
+      "field": "beneficiary.fl.lastName"
+    },
+    {
+      "id": "library.fl.middle_name_length",
+      "type": "rule",
+      "description": "Отчество не должно быть длиннее 255 символов",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "FL.MIDDLE_NAME.LENGTH",
+      "message": "Отчество слишком длинное",
+      "field": "beneficiary.fl.middleName",
+      "value": 255
+    },
+    {
+      "id": "library.fl.precheck_identity_any",
+      "type": "rule",
+      "description": "Для FL_RESIDENT должен быть указан хотя бы один идентификатор: inn или beneficiary.idDoc.number",
+      "role": "check",
+      "operator": "any_filled",
+      "level": "EXCEPTION",
+      "code": "FL.IDENTITY.MIN.ONE",
+      "message": "Для FL_RESIDENT должен быть указан inn или beneficiary.idDoc.number",
+      "fields": [
+        "beneficiary.inn",
+        "beneficiary.idDoc.number"
+      ],
+      "paths": [
+        "beneficiary.inn",
+        "beneficiary.idDoc.number"
+      ]
+    },
+    {
+      "id": "library.fl.pred_birth_date_present",
+      "type": "rule",
+      "description": "Дата рождения указана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.fl.birthDate"
+    },
+    {
+      "id": "library.fl.pred_birth_place_present",
+      "type": "rule",
+      "description": "Место рождения указано",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.fl.birthPlace"
+    },
+    {
+      "id": "library.fl.pred_citizenship_present",
+      "type": "rule",
+      "description": "Гражданство указано",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.fl.citizenshipCode"
+    },
+    {
+      "id": "library.fl.pred_first_name_present",
+      "type": "rule",
+      "description": "Имя указано",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.fl.firstName"
+    },
+    {
+      "id": "library.fl.pred_inn_length_valid",
+      "type": "rule",
+      "description": "ИНН содержит ровно 12 цифр",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.inn",
+      "value": "^\\d{12}$"
+    },
+    {
+      "id": "library.fl.pred_inn_present",
+      "type": "rule",
+      "description": "ИНН указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.inn"
+    },
+    {
+      "id": "library.fl.pred_last_name_present",
+      "type": "rule",
+      "description": "Фамилия указана",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.fl.lastName"
+    },
+    {
+      "id": "library.fl.pred_middle_name_present",
+      "type": "rule",
+      "description": "Отчество указано",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.fl.middleName"
+    },
+    {
+      "id": "library.tax.cond_foreign_address_if_present",
+      "type": "condition",
+      "description": "Если адрес в иностранном государстве указан, проверяем запрет США",
+      "when": {
+        "all": [
+          "library.tax.pred_foreign_address_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.tax.foreign_address_not_us"
+        }
+      ]
+    },
+    {
+      "id": "library.tax.cond_foreign_tax_trigger_block",
+      "type": "condition",
+      "description": "Если указан иностранный документ или адрес не РФ, то проверяем данные иностранного налогового резидентства",
+      "when": {
+        "any": [
+          "library.tax.pred_is_foreign_id_doc_true",
+          "library.tax.pred_registration_country_non_ru",
+          "library.tax.pred_postal_country_non_ru"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.tax.foreign_country_required"
+        },
+        {
+          "rule": "library.tax.foreign_country_format"
+        },
+        {
+          "rule": "library.tax.foreign_country_not_us"
+        },
+        {
+          "rule": "library.tax.foreign_tin_or_reason"
+        },
+        {
+          "rule": "library.tax.foreign_address_or_postal_required"
+        },
+        {
+          "condition": "library.tax.cond_foreign_address_if_present"
+        },
+        {
+          "condition": "library.tax.cond_tin_if_present"
+        },
+        {
+          "condition": "library.tax.cond_reason_if_present"
+        }
+      ]
+    },
+    {
+      "id": "library.tax.cond_phone_foreign_required_if_triggered_and_rf_phone_missing",
+      "type": "condition",
+      "description": "Если телефон РФ не указан и при этом указан иностранный документ или адрес не РФ, то требуем иностранный телефон",
+      "when": {
+        "all": [
+          "library.tax.pred_phone_missing",
+          {
+            "any": [
+              "library.tax.pred_is_foreign_id_doc_true",
+              "library.tax.pred_registration_country_non_ru",
+              "library.tax.pred_postal_country_non_ru"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.tax.phone_foreign_required"
+        }
+      ]
+    },
+    {
+      "id": "library.tax.cond_reason_if_present",
+      "type": "condition",
+      "description": "Если указана причина отсутствия иностранного ИНН, проверяем справочник",
+      "when": {
+        "all": [
+          "library.tax.pred_reason_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.tax.tin_absence_reason_dict"
+        }
+      ]
+    },
+    {
+      "id": "library.tax.cond_tin_if_present",
+      "type": "condition",
+      "description": "Если иностранный ИНН указан, проверяем длину",
+      "when": {
+        "all": [
+          "library.tax.pred_tin_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.tax.foreign_tin_length"
+        }
+      ]
+    },
+    {
+      "id": "library.tax.foreign_address_not_us",
+      "type": "rule",
+      "description": "Адрес в иностранном государстве не должен содержать указание на США",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.FOREIGN_ADDRESS.NOT_US",
+      "message": "Адрес в иностранном государстве не должен указывать на США",
+      "field": "beneficiary.tax.foreignResidencies0.address",
+      "value": "^(?!.*(?:США|USA|Usa|usa|US|U\\.S\\.)).*$"
+    },
+    {
+      "id": "library.tax.foreign_address_or_postal_required",
+      "type": "rule",
+      "description": "При foreign-tax trigger должен быть указан адрес в иностранном государстве или почтовый адрес",
+      "role": "check",
+      "operator": "any_filled",
+      "level": "ERROR",
+      "code": "BEN.TAX.FOREIGN_ADDRESS.OR_POSTAL_REQUIRED",
+      "message": "Укажите адрес в иностранном государстве или почтовый адрес",
+      "fields": [
+        "beneficiary.tax.foreignResidencies0.address",
+        "beneficiary.contacts.postalAddress"
+      ]
+    },
+    {
+      "id": "library.tax.foreign_address_required",
+      "type": "rule",
+      "description": "При foreign-tax trigger требуется адрес в иностранном государстве",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.TAX.FOREIGN_ADDRESS.REQUIRED",
+      "message": "Не указан адрес в иностранном государстве",
+      "field": "beneficiary.tax.foreignResidencies0.address"
+    },
+    {
+      "id": "library.tax.foreign_country_format",
+      "type": "rule",
+      "description": "Код страны иностранного налогового резидентства должен быть двухбуквенным",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "ERROR",
+      "code": "BEN.TAX.FOREIGN_COUNTRY.FORMAT",
+      "message": "Код страны иностранного налогового резидентства должен быть в формате ISO 3166-1 alpha-2",
+      "field": "beneficiary.tax.foreignResidencies0.countryCode",
+      "value": "^[A-Z]{2}$"
+    },
+    {
+      "id": "library.tax.foreign_country_not_us",
+      "type": "rule",
+      "description": "Код страны иностранного налогового резидентства не должен быть US",
+      "role": "check",
+      "operator": "not_equals",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.FOREIGN_COUNTRY.NOT_US",
+      "message": "Иностранное налоговое резидентство США должно блокироваться отдельно и не допускается в этом блоке",
+      "field": "beneficiary.tax.foreignResidencies0.countryCode",
+      "value": "US"
+    },
+    {
+      "id": "library.tax.foreign_country_required",
+      "type": "rule",
+      "description": "При иностранном налоговом резидентстве требуется первая страна налогового резидентства",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.FOREIGN_COUNTRY.REQUIRED",
+      "message": "Не указана страна иностранного налогового резидентства",
+      "field": "beneficiary.tax.foreignResidencies0.countryCode"
+    },
+    {
+      "id": "library.tax.foreign_tax_resident_bool",
+      "type": "rule",
+      "description": "Признак иностранного налогового резидентства должен быть булевым (true/false)",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.FOREIGN_TAX_RESIDENT.BOOL",
+      "message": "Признак иностранного налогового резидентства должен иметь значение true или false",
+      "field": "beneficiary.tax.foreignTaxResident",
+      "dictionary": {
+        "type": "static",
+        "id": "true_false"
+      }
+    },
+    {
+      "id": "library.tax.foreign_tin_length",
+      "type": "rule",
+      "description": "Иностранный ИНН не должен быть длиннее 64 символов",
+      "role": "check",
+      "operator": "length_max",
+      "level": "ERROR",
+      "code": "BEN.TAX.FOREIGN_TIN.LENGTH",
+      "message": "Иностранный ИНН слишком длинный",
+      "field": "beneficiary.tax.foreignResidencies0.tin",
+      "value": 64
+    },
+    {
+      "id": "library.tax.foreign_tin_or_reason",
+      "type": "rule",
+      "description": "Должен быть указан иностранный ИНН или причина его отсутствия",
+      "role": "check",
+      "operator": "any_filled",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.FOREIGN_TIN.OR_REASON",
+      "message": "Укажите иностранный ИНН или причину его отсутствия",
+      "fields": [
+        "beneficiary.tax.foreignResidencies0.tin",
+        "beneficiary.tax.foreignResidencies0.tinAbsenceReason"
+      ],
+      "paths": [
+        "beneficiary.tax.foreignResidencies0.tin",
+        "beneficiary.tax.foreignResidencies0.tinAbsenceReason"
+      ]
+    },
+    {
+      "id": "library.tax.phone_foreign_required",
+      "type": "rule",
+      "description": "При foreign-trigger и отсутствии телефона РФ требуется иностранный телефон",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.CONTACTS.PHONE_FOREIGN.REQUIRED",
+      "message": "Не указан иностранный телефон. Он обязателен при отсутствии телефона РФ и наличии foreign-trigger",
+      "field": "beneficiary.contacts.phoneForeign"
+    },
+    {
+      "id": "library.tax.pred_foreign_address_present",
+      "type": "rule",
+      "description": "Адрес в иностранном государстве заполнен",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.tax.foreignResidencies0.address"
+    },
+    {
+      "id": "library.tax.pred_foreign_tax_true",
+      "type": "rule",
+      "description": "Указано иностранное налоговое резидентство",
+      "role": "predicate",
+      "operator": "equals",
+      "field": "beneficiary.tax.foreignTaxResident",
+      "value": true
+    },
+    {
+      "id": "library.tax.pred_is_foreign_id_doc_true",
+      "type": "rule",
+      "description": "Есть признак иностранного документа",
+      "role": "predicate",
+      "operator": "equals",
+      "field": "beneficiary.idDoc.isForeignIdDoc",
+      "value": true
+    },
+    {
+      "id": "library.tax.pred_phone_missing",
+      "type": "rule",
+      "description": "Телефон РФ отсутствует",
+      "role": "predicate",
+      "operator": "is_empty",
+      "field": "beneficiary.contacts.phone"
+    },
+    {
+      "id": "library.tax.pred_postal_country_non_ru",
+      "type": "rule",
+      "description": "Страна почтового адреса указана и не равна RU",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.contacts.postalAddressCountryCode",
+      "value": "^(?!RU$)[A-Z]{2}$"
+    },
+    {
+      "id": "library.tax.pred_reason_present",
+      "type": "rule",
+      "description": "Указана причина отсутствия иностранного ИНН",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.tax.foreignResidencies0.tinAbsenceReason"
+    },
+    {
+      "id": "library.tax.pred_registration_country_non_ru",
+      "type": "rule",
+      "description": "Страна адреса регистрации указана и не равна RU",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.address.registration.countryCode",
+      "value": "^(?!RU$)[A-Z]{2}$"
+    },
+    {
+      "id": "library.tax.pred_tin_present",
+      "type": "rule",
+      "description": "Иностранный ИНН указан",
+      "role": "predicate",
+      "operator": "not_empty",
+      "field": "beneficiary.tax.foreignResidencies0.tin"
+    },
+    {
+      "id": "library.tax.tin_absence_reason_dict",
+      "type": "rule",
+      "description": "Код причины отсутствия иностранного ИНН должен входить в справочник",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.TIN_ABSENCE_REASON.DICT",
+      "message": "Некорректный код причины отсутствия иностранного ИНН",
+      "field": "beneficiary.tax.foreignResidencies0.tinAbsenceReason",
+      "dictionary": {
+        "type": "static",
+        "id": "tin_absence_reasons"
+      }
+    },
+    {
+      "id": "library.tax.us_resident_bool",
+      "type": "rule",
+      "description": "Признак резидентства США должен быть булевым (true/false)",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.US_RESIDENT.BOOL",
+      "message": "Признак резидентства США должен иметь значение true или false",
+      "field": "beneficiary.tax.usResident",
+      "dictionary": {
+        "type": "static",
+        "id": "true_false"
+      }
+    },
+    {
+      "id": "library.tax.us_tax_resident_bool",
+      "type": "rule",
+      "description": "Признак налогового резидентства США должен быть булевым (true/false)",
+      "role": "check",
+      "operator": "in_dictionary",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.US_TAX_RESIDENT.BOOL",
+      "message": "Признак налогового резидентства США должен иметь значение true или false",
+      "field": "beneficiary.tax.usTaxResident",
+      "dictionary": {
+        "type": "static",
+        "id": "true_false"
+      }
+    },
+    {
+      "id": "entrypoints.fl_resident.full_validation",
+      "type": "pipeline",
+      "description": "FL_RESIDENT / full_validation",
+      "strict": false,
+      "flow": [
+        {
+          "rule": "library.common.beneficiary_type_required"
+        },
+        {
+          "rule": "library.common.beneficiary_type_supported"
+        },
+        {
+          "rule": "type_is_fl_resident"
+        },
+        {
+          "pipeline": "internal.fl_resident.blocks.contacts_and_status"
+        },
+        {
+          "pipeline": "internal.fl_resident.blocks.identity_core"
+        },
+        {
+          "pipeline": "internal.fl_resident.blocks.identity_document"
+        },
+        {
+          "pipeline": "internal.fl_resident.blocks.address"
+        },
+        {
+          "pipeline": "internal.fl_resident.blocks.tax_flags"
+        }
+      ],
+      "entrypoint": true,
+      "required_context": [
+        "currentDate"
+      ]
+    },
+    {
+      "id": "entrypoints.fl_resident.full_validation.type_is_fl_resident",
+      "type": "rule",
+      "description": "Тип бенефициара должен быть FL_RESIDENT",
+      "role": "check",
+      "operator": "equals",
+      "level": "EXCEPTION",
+      "code": "FL.TYPE.MISMATCH",
+      "message": "Бенефициар должен быть физическим лицом, резидентом РФ (FL_RESIDENT)",
+      "field": "beneficiary.type",
+      "value": "FL_RESIDENT"
+    },
+    {
+      "id": "internal.fl_resident.blocks.address",
+      "type": "pipeline",
+      "description": "Проверки адреса регистрации и почтового адреса",
+      "strict": false,
+      "flow": [
+        {
+          "rule": "library.address.registration_address_required"
+        },
+        {
+          "condition": "registration_country_if_present"
+        },
+        {
+          "condition": "library.address.cond_registration_fias_structure_for_ru"
+        },
+        {
+          "condition": "library.address.cond_postal_address_if_present"
+        },
+        {
+          "condition": "library.address.cond_postal_if_present"
+        },
+        {
+          "condition": "library.address.cond_region_code_if_present"
+        },
+        {
+          "condition": "library.address.cond_region_name_if_present"
+        },
+        {
+          "condition": "library.address.cond_city_if_present"
+        },
+        {
+          "condition": "library.address.cond_locality_if_present"
+        },
+        {
+          "condition": "library.address.cond_street_if_present"
+        },
+        {
+          "condition": "library.address.cond_house_if_present"
+        },
+        {
+          "condition": "library.address.cond_building_if_present"
+        },
+        {
+          "condition": "library.address.cond_apartment_if_present"
+        },
+        {
+          "condition": "library.address.cond_address_line_if_present"
+        }
+      ],
+      "entrypoint": false
+    },
+    {
+      "id": "internal.fl_resident.blocks.address.registration_country_if_present",
+      "type": "condition",
+      "description": "Если страна адреса регистрации заполнена, проверяем формат и запрет США",
+      "when": {
+        "all": [
+          "library.address.pred_country_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.country"
+        },
+        {
+          "rule": "registration_country_not_us"
+        }
+      ]
+    },
+    {
+      "id": "internal.fl_resident.blocks.address.registration_country_not_us",
+      "type": "rule",
+      "description": "Страна адреса регистрации не должна быть US",
+      "role": "check",
+      "operator": "not_equals",
+      "level": "EXCEPTION",
+      "code": "BEN.ADDRESS.COUNTRY.NOT_US",
+      "message": "Адрес США не допускается для FL_RESIDENT",
+      "field": "beneficiary.address.registration.countryCode",
+      "value": "US"
+    },
+    {
+      "id": "internal.fl_resident.blocks.contacts_and_status",
+      "type": "pipeline",
+      "description": "Общие проверки контактов и статуса связи",
+      "strict": false,
+      "flow": [
+        {
+          "rule": "library.common.participation_required"
+        },
+        {
+          "condition": "library.common.cond_participation_if_present"
+        },
+        {
+          "rule": "library.common.contacts_any"
+        },
+        {
+          "condition": "library.common.cond_phone_if_present"
+        },
+        {
+          "condition": "library.common.cond_email_if_present"
+        },
+        {
+          "rule": "library.common.status_start_required"
+        },
+        {
+          "condition": "library.common.cond_status_start_if_present"
+        },
+        {
+          "condition": "library.common.cond_status_end_if_present"
+        }
+      ],
+      "entrypoint": false
+    },
+    {
+      "id": "internal.fl_resident.blocks.identity_core.birth_place_if_present",
+      "type": "condition",
+      "description": "Если место рождения указано, то проверяем ограничения",
+      "when": {
+        "all": [
+          "library.fl.pred_birth_place_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "birth_place_not_usa"
+        }
+      ]
+    },
+    {
+      "id": "internal.fl_resident.blocks.identity_core.birth_place_not_usa",
+      "type": "rule",
+      "description": "Место рождения не должно содержать указание на США",
+      "role": "check",
+      "operator": "matches_regex",
+      "level": "EXCEPTION",
+      "code": "FL.BIRTH_PLACE.NOT_USA",
+      "message": "Место рождения не должно указывать на США",
+      "field": "beneficiary.fl.birthPlace",
+      "value": "^(?!.*(?:США|USA|Usa|usa|US|U\\.S\\.)).*$"
+    },
+    {
+      "id": "internal.fl_resident.blocks.identity_core.citizenship_if_present",
+      "type": "condition",
+      "description": "Если гражданство указано, то проверяем формат и ограничения",
+      "when": {
+        "all": [
+          "library.fl.pred_citizenship_present"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.fl.citizenship_code_format"
+        },
+        {
+          "rule": "citizenship_not_us"
+        }
+      ]
+    },
+    {
+      "id": "internal.fl_resident.blocks.identity_core.citizenship_not_us",
+      "type": "rule",
+      "description": "Код гражданства не должен быть US",
+      "role": "check",
+      "operator": "not_equals",
+      "level": "EXCEPTION",
+      "code": "FL.CITIZENSHIP.NOT_US",
+      "message": "Гражданство США не допускается для FL_RESIDENT",
+      "field": "beneficiary.fl.citizenshipCode",
+      "value": "US"
+    },
+    {
+      "id": "internal.fl_resident.blocks.identity_core",
+      "type": "pipeline",
+      "description": "Основные персональные данные",
+      "strict": false,
+      "flow": [
+        {
+          "rule": "library.fl.inn_required"
+        },
+        {
+          "condition": "library.fl.cond_inn_if_present"
+        },
+        {
+          "rule": "library.fl.last_name_required"
+        },
+        {
+          "condition": "library.fl.cond_last_name_if_present"
+        },
+        {
+          "rule": "library.fl.first_name_required"
+        },
+        {
+          "condition": "library.fl.cond_first_name_if_present"
+        },
+        {
+          "condition": "library.fl.cond_middle_name_if_present"
+        },
+        {
+          "rule": "library.fl.birth_date_required"
+        },
+        {
+          "condition": "library.fl.cond_birth_date_if_present"
+        },
+        {
+          "rule": "library.fl.birth_place_required"
+        },
+        {
+          "condition": "birth_place_if_present"
+        },
+        {
+          "rule": "library.fl.citizenship_required"
+        },
+        {
+          "condition": "citizenship_if_present"
+        }
+      ],
+      "entrypoint": false
+    },
+    {
+      "id": "internal.fl_resident.blocks.identity_document",
+      "type": "pipeline",
+      "description": "Проверка документа удостоверяющего личность",
+      "strict": false,
+      "flow": [
+        {
+          "rule": "library.documents.type_code_required"
+        },
+        {
+          "rule": "library.documents.type_code_in_dictionary"
+        },
+        {
+          "rule": "library.documents.type_code_not_35"
+        },
+        {
+          "rule": "library.documents.is_foreign_required"
+        },
+        {
+          "condition": "library.documents.cond_foreign_doc_consistency"
+        },
+        {
+          "condition": "library.documents.cond_domestic_doc_consistency"
+        },
+        {
+          "rule": "library.documents.type_name_required"
+        },
+        {
+          "rule": "library.documents.number_required"
+        },
+        {
+          "rule": "library.documents.issuer_required"
+        },
+        {
+          "condition": "library.documents.cond_issuer_if_present"
+        },
+        {
+          "rule": "library.documents.issue_date_required"
+        },
+        {
+          "condition": "library.documents.cond_issue_date_if_present"
+        },
+        {
+          "condition": "library.documents.cond_expire_date_if_present"
+        },
+        {
+          "condition": "library.documents.cond_passport_rf_fields"
+        },
+        {
+          "rule": "library.documents.is_foreign_bool"
+        }
+      ],
+      "entrypoint": false
+    },
+    {
+      "id": "internal.fl_resident.blocks.tax_flags",
+      "type": "pipeline",
+      "description": "Регуляторные флаги и иностранное налоговое резидентство",
+      "strict": false,
+      "flow": [
+        {
+          "rule": "library.tax.us_tax_resident_bool"
+        },
+        {
+          "rule": "us_tax_resident_not_true"
+        },
+        {
+          "rule": "library.tax.us_resident_bool"
+        },
+        {
+          "rule": "us_resident_not_true"
+        },
+        {
+          "condition": "library.tax.cond_foreign_tax_trigger_block"
+        },
+        {
+          "condition": "library.tax.cond_phone_foreign_required_if_triggered_and_rf_phone_missing"
+        },
+        {
+          "condition": "library.common.cond_phone_foreign_if_present"
+        }
+      ],
+      "entrypoint": false
+    },
+    {
+      "id": "internal.fl_resident.blocks.tax_flags.us_resident_not_true",
+      "type": "rule",
+      "description": "Признак резидентства США не должен быть true",
+      "role": "check",
+      "operator": "not_equals",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.US_RESIDENT.NOT_TRUE",
+      "message": "Признак резидентства США не допускается для FL_RESIDENT",
+      "field": "beneficiary.tax.usResident",
+      "value": true
+    },
+    {
+      "id": "internal.fl_resident.blocks.tax_flags.us_tax_resident_not_true",
+      "type": "rule",
+      "description": "Признак налогового резидентства США не должен быть true",
+      "role": "check",
+      "operator": "not_equals",
+      "level": "EXCEPTION",
+      "code": "BEN.TAX.US_TAX_RESIDENT.NOT_TRUE",
+      "message": "Признак налогового резидентства США не допускается для FL_RESIDENT",
+      "field": "beneficiary.tax.usTaxResident",
+      "value": true
+    },
+    {
+      "id": "library.address.pred_registration_country_ru",
+      "type": "rule",
+      "description": "Страна адреса регистрации указана и равна RU",
+      "role": "predicate",
+      "operator": "matches_regex",
+      "field": "beneficiary.address.registration.countryCode",
+      "value": "^RU$"
+    },
+    {
+      "id": "library.address.registration_region_code_required_for_ru",
+      "type": "rule",
+      "description": "Для адреса РФ требуется код региона",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.FIAS.REGION_CODE.REQUIRED",
+      "message": "Для адреса РФ должен быть указан код региона в ФИАС-структуре",
+      "field": "beneficiary.address.registration.regionCode"
+    },
+    {
+      "id": "library.address.registration_city_or_locality_required_for_ru",
+      "type": "rule",
+      "description": "Для адреса РФ требуется город или населенный пункт",
+      "role": "check",
+      "operator": "any_filled",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.FIAS.CITY_OR_LOCALITY.REQUIRED",
+      "message": "Для адреса РФ должен быть указан город или населённый пункт в ФИАС-структуре",
+      "fields": [
+        "beneficiary.address.registration.city",
+        "beneficiary.address.registration.locality"
+      ]
+    },
+    {
+      "id": "library.address.registration_street_required_for_ru",
+      "type": "rule",
+      "description": "Для адреса РФ требуется улица",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.FIAS.STREET.REQUIRED",
+      "message": "Для адреса РФ должна быть указана улица в ФИАС-структуре",
+      "field": "beneficiary.address.registration.street"
+    },
+    {
+      "id": "library.address.registration_house_required_for_ru",
+      "type": "rule",
+      "description": "Для адреса РФ требуется дом",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.FIAS.HOUSE.REQUIRED",
+      "message": "Для адреса РФ должен быть указан дом в ФИАС-структуре",
+      "field": "beneficiary.address.registration.house"
+    },
+    {
+      "id": "library.address.registration_postal_required_for_ru",
+      "type": "rule",
+      "description": "Для адреса РФ требуется почтовый индекс",
+      "role": "check",
+      "operator": "not_empty",
+      "level": "ERROR",
+      "code": "BEN.ADDR.REG.FIAS.POSTAL.REQUIRED",
+      "message": "Для адреса РФ должен быть указан почтовый индекс в ФИАС-структуре",
+      "field": "beneficiary.address.registration.postalCode"
+    },
+    {
+      "id": "library.address.cond_registration_fias_structure_for_ru",
+      "type": "condition",
+      "description": "Если адрес регистрации относится к РФ, требуем ФИАС-структуру адреса",
+      "when": {
+        "all": [
+          "library.address.pred_registration_country_ru"
+        ]
+      },
+      "steps": [
+        {
+          "rule": "library.address.registration_region_code_required_for_ru"
+        },
+        {
+          "rule": "library.address.registration_city_or_locality_required_for_ru"
+        },
+        {
+          "rule": "library.address.registration_street_required_for_ru"
+        },
+        {
+          "rule": "library.address.registration_house_required_for_ru"
+        },
+        {
+          "rule": "library.address.registration_postal_required_for_ru"
+        }
+      ]
+    }
+  ]
+}

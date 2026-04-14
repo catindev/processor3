@@ -1,0 +1,106 @@
+{
+  "id": "abs.ensure_fl_resident_beneficiary",
+  "version": "1.0.0",
+  "entryStepId": "send_find_client",
+  "steps": {
+    "send_find_client": {
+      "id": "send_find_client",
+      "type": "EFFECT",
+      "subtype": "COMMAND",
+      "operationId": "FIND_CLIENT",
+      "inputRef": "$.context.input.application",
+      "nextStepId": "wait_find_client",
+      "onErrorStepId": "finish_fail"
+    },
+    "wait_find_client": {
+      "id": "wait_find_client",
+      "type": "WAIT",
+      "subtype": "MESSAGE",
+      "sourceStepId": "send_find_client",
+      "nextStepId": "choose_find_client_scenario",
+      "onErrorStepId": "choose_find_client_scenario",
+      "onTimeoutStepId": "finish_fail"
+    },
+    "choose_find_client_scenario": {
+      "id": "choose_find_client_scenario",
+      "type": "PROCESS",
+      "subtype": "DECISIONS",
+      "artefactId": "decisions.fl_resident.find_client_scenario",
+      "contract": {
+        "input": {
+          "ref": "$.context.effects.send_find_client.waitResult"
+        },
+        "output": {
+          "ref": "$.context.decisions.find_client_scenario"
+        }
+      },
+      "nextStepId": "switch_find_client_scenario"
+    },
+    "switch_find_client_scenario": {
+      "id": "switch_find_client_scenario",
+      "type": "CONTROL",
+      "subtype": "SWITCH",
+      "decisionSetId": "find_client_scenario",
+      "cases": {
+        "NOT_FOUND": "send_create_client",
+        "FOUND": "send_bind_client",
+        "TECHNICAL_ERROR": "finish_fail"
+      },
+      "defaultNextStepId": "finish_fail"
+    },
+    "send_create_client": {
+      "id": "send_create_client",
+      "type": "EFFECT",
+      "subtype": "COMMAND",
+      "operationId": "CREATE_CLIENT",
+      "inputRef": "$.context.input.application",
+      "nextStepId": "wait_create_client",
+      "onErrorStepId": "finish_fail"
+    },
+    "wait_create_client": {
+      "id": "wait_create_client",
+      "type": "WAIT",
+      "subtype": "MESSAGE",
+      "sourceStepId": "send_create_client",
+      "nextStepId": "send_bind_client",
+      "onErrorStepId": "finish_fail",
+      "onTimeoutStepId": "finish_fail"
+    },
+    "send_bind_client": {
+      "id": "send_bind_client",
+      "type": "EFFECT",
+      "subtype": "COMMAND",
+      "operationId": "BIND_CLIENT",
+      "inputRef": "$.context.input.application",
+      "nextStepId": "wait_bind_client",
+      "onErrorStepId": "finish_fail"
+    },
+    "wait_bind_client": {
+      "id": "wait_bind_client",
+      "type": "WAIT",
+      "subtype": "MESSAGE",
+      "sourceStepId": "send_bind_client",
+      "nextStepId": "finish_success",
+      "onErrorStepId": "finish_fail",
+      "onTimeoutStepId": "finish_fail"
+    },
+    "finish_success": {
+      "id": "finish_success",
+      "type": "TERMINAL",
+      "subtype": "COMPLETE",
+      "result": {
+        "status": "COMPLETE",
+        "outcome": "ABS_ENSURE_BENEFICIARY_DONE"
+      }
+    },
+    "finish_fail": {
+      "id": "finish_fail",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE"
+      }
+    }
+  }
+}

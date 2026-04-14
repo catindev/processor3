@@ -1,0 +1,21 @@
+{
+  "name": "beneficiary-processor-v3",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/*.test.js",
+    "smoke": "node scripts/smoke-v3.mjs"
+  },
+  "dependencies": {
+    "@processengine/decisions": "^1.0.0",
+    "@processengine/mappings": "^2.0.1",
+    "@processengine/rules": "^2.0.1",
+    "@processengine/semantics": "^1.0.0",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "artifactSetId": "beneficiary.persist_and_link.v3",
+  "artifactSetVersion": "v3",
+  "flowId": "abs.ensure_fl_resident_beneficiary",
+  "flowFile": "flow.persist_and_link.v3.json",
+  "rulesFile": "rules.snapshot.v3.json",
+  "mappingFiles": {},
+  "decisionsFile": "decision.v3.json",
+  "operatorPackId": "beneficiary-defaults"
+}

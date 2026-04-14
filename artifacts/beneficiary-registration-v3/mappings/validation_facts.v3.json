@@ -1,0 +1,21 @@
+{
+  "mappingId": "mappings.fl_resident.validation_facts",
+  "sources": { "validation": "object" },
+  "output": {
+    "resolutionClass": {
+      "mapValue": {
+        "from": "sources.validation.status",
+        "map": {
+          "EXCEPTION": "EXCEPTION",
+          "ERROR": "ERROR",
+          "OK": "OK",
+          "OK_WITH_WARNINGS": "OK_WITH_WARNINGS"
+        },
+        "fallback": "UNKNOWN"
+      }
+    },
+    "hasErrors": { "equals": ["sources.validation.status", "ERROR"] },
+    "hasWarnings": { "equals": ["sources.validation.status", "OK_WITH_WARNINGS"] },
+    "hasExceptions": { "equals": ["sources.validation.status", "EXCEPTION"] }
+  }
+}

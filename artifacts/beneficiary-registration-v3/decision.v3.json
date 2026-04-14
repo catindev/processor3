@@ -1,0 +1,64 @@
+{
+  "artifacts": [
+    {
+      "id": "validation.has_exception",
+      "type": "decision-rule",
+      "description": "Validation produced EXCEPTION",
+      "when": { "hasExceptions": true },
+      "then": { "decision": "EXCEPTION", "reason": "VALIDATION_EXCEPTION" }
+    },
+    {
+      "id": "validation.has_error",
+      "type": "decision-rule",
+      "description": "Validation produced ERROR",
+      "when": { "hasErrors": true },
+      "then": { "decision": "ERROR", "reason": "VALIDATION_ERROR" }
+    },
+    {
+      "id": "validation.has_warning",
+      "type": "decision-rule",
+      "description": "Validation produced OK_WITH_WARNINGS",
+      "when": { "hasWarnings": true },
+      "then": { "decision": "OK_WITH_WARNINGS", "reason": "VALIDATION_WARNING" }
+    },
+    {
+      "id": "decisions.fl_resident.validation_outcome",
+      "type": "decision-set",
+      "description": "Route after validation",
+      "version": "1.0.0",
+      "mode": "first_match_wins",
+      "rules": [
+        "validation.has_exception",
+        "validation.has_error",
+        "validation.has_warning"
+      ],
+      "defaultDecision": { "decision": "OK", "reason": "VALIDATION_OK" }
+    },
+    {
+      "id": "find_client.not_found",
+      "type": "decision-rule",
+      "description": "ABS lookup returned NOT_FOUND",
+      "when": { "error.type": "NOT_FOUND" },
+      "then": { "decision": "NOT_FOUND", "reason": "ABS_NOT_FOUND" }
+    },
+    {
+      "id": "find_client.found",
+      "type": "decision-rule",
+      "description": "ABS lookup returned SUCCESS",
+      "when": { "result.status": "SUCCESS" },
+      "then": { "decision": "FOUND", "reason": "ABS_FOUND" }
+    },
+    {
+      "id": "decisions.fl_resident.find_client_scenario",
+      "type": "decision-set",
+      "description": "Route after FIND_CLIENT",
+      "version": "1.0.0",
+      "mode": "first_match_wins",
+      "rules": [
+        "find_client.not_found",
+        "find_client.found"
+      ],
+      "defaultDecision": { "decision": "NOT_FOUND", "reason": "DEFAULT_NOT_FOUND" }
+    }
+  ]
+}
