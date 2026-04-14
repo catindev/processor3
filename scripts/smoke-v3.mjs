@@ -97,64 +97,72 @@ function call(action, body, invoke) {
   }
 }
 
-let state = call('init', { processId: 'smoke-main', flowId: 'beneficiary.registration.v3', flowVersion: '1.0.0', application: { payload: SAMPLE, context: { currentDate: '2026-04-12' } } }, () =>
-  processor.init({ processId: 'smoke-main', flowId: 'beneficiary.registration.v3', flowVersion: '1.0.0', application: { payload: SAMPLE, context: { currentDate: '2026-04-12' } } })
-);
+let state = call('init', { processId: 'smoke-main', flowId: 'beneficiary.registration.v3', flowVersion: '1.0.0', input: { application: SAMPLE, currentDate: '2026-04-12' } }, () =>
+  processor.init({ processId: 'smoke-main', flowId: 'beneficiary.registration.v3', flowVersion: '1.0.0', input: { application: SAMPLE, currentDate: '2026-04-12' } })
+).state;
 let guard = 0;
 while ((state.status === 'ACTIVE' || state.status === 'WAITING') && guard++ < 50) {
-  const step = call('step', state, () => processor.step(state));
-  if (step.type === 'PROCESS' || step.type === 'CONTROL') {
-    state = call('execute', state, () => processor.execute(state));
+  const step = call('step', { state }, () => processor.step({ state })).step;
+  if (step.type === 'PROCESS') {
+    state = call('run', { state }, () => processor.run({ state })).state;
+    continue;
+  }
+  if (step.type === 'CONTROL') {
+    state = call('route', { state }, () => processor.route({ state })).state;
     continue;
   }
   if (step.type === 'EFFECT' && step.subtype === 'CALL') {
     const reqId = 'addr-1';
-    state = call('apply', { state, stepId: step.id, effectResult: accepted(step.operationId, reqId) }, () => processor.apply({ state, stepId: step.id, effectResult: accepted(step.operationId, reqId) }));
-    const wait = call('step', state, () => processor.step(state));
+    state = call('apply', { state, stepId: step.id, effectResult: accepted(step.operationId, reqId) }, () => processor.apply({ state, stepId: step.id, effectResult: accepted(step.operationId, reqId) })).state;
+    const wait = call('step', { state }, () => processor.step({ state })).step;
     state = call('resume', { state, stepId: wait.id, waitResult: { requestId: reqId, result: { status: 'SUCCESS', address: { valid: true, normalized: 'Москва, Тверская 1' } } } }, () =>
       processor.resume({ state, stepId: wait.id, waitResult: { requestId: reqId, result: { status: 'SUCCESS', address: { valid: true, normalized: 'Москва, Тверская 1' } } } })
-    );
+    ).state;
     continue;
   }
   if (step.type === 'EFFECT' && step.subtype === 'SUBFLOW') {
     const reqId = 'sub-1';
-    state = call('apply', { state, stepId: step.id, effectResult: accepted(step.operationId, reqId) }, () => processor.apply({ state, stepId: step.id, effectResult: accepted(step.operationId, reqId) }));
-    const wait = call('step', state, () => processor.step(state));
+    state = call('apply', { state, stepId: step.id, effectResult: accepted(step.operationId, reqId) }, () => processor.apply({ state, stepId: step.id, effectResult: accepted(step.operationId, reqId) })).state;
+    const wait = call('step', { state }, () => processor.step({ state })).step;
     state = call('resume', { state, stepId: wait.id, waitResult: { requestId: reqId, result: { status: 'COMPLETE', outcome: 'ABS_ENSURE_BENEFICIARY_DONE' } } }, () =>
       processor.resume({ state, stepId: wait.id, waitResult: { requestId: reqId, result: { status: 'COMPLETE', outcome: 'ABS_ENSURE_BENEFICIARY_DONE' } } })
-    );
+    ).state;
     continue;
   }
   break;
 }
 console.log(JSON.stringify({ main: { status: state.status, result: state.result } }, null, 2));
 
-let sub = call('init', { processId: 'smoke-sub', flowId: 'abs.ensure_fl_resident_beneficiary', flowVersion: '1.0.0', application: { payload: SAMPLE, context: { currentDate: '2026-04-12' } } }, () =>
-  processor.init({ processId: 'smoke-sub', flowId: 'abs.ensure_fl_resident_beneficiary', flowVersion: '1.0.0', application: { payload: SAMPLE, context: { currentDate: '2026-04-12' } } })
-);
+let sub = call('init', { processId: 'smoke-sub', flowId: 'abs.ensure_fl_resident_beneficiary', flowVersion: '1.0.0', input: { application: SAMPLE, currentDate: '2026-04-12' } }, () =>
+  processor.init({ processId: 'smoke-sub', flowId: 'abs.ensure_fl_resident_beneficiary', flowVersion: '1.0.0', input: { application: SAMPLE, currentDate: '2026-04-12' } })
+).state;
 guard = 0;
 while ((sub.status === 'ACTIVE' || sub.status === 'WAITING') && guard++ < 50) {
-  const step = call('step', sub, () => processor.step(sub));
-  if (step.type === 'PROCESS' || step.type === 'CONTROL') {
-    sub = call('execute', sub, () => processor.execute(sub));
+  const step = call('step', { state: sub }, () => processor.step({ state: sub })).step;
+  if (step.type === 'PROCESS') {
+    sub = call('run', { state: sub }, () => processor.run({ state: sub })).state;
+    continue;
+  }
+  if (step.type === 'CONTROL') {
+    sub = call('route', { state: sub }, () => processor.route({ state: sub })).state;
     continue;
   }
   if (step.id === 'send_find_client') {
-    sub = call('apply', { state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'find-1') }, () => processor.apply({ state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'find-1') }));
-    const wait = call('step', sub, () => processor.step(sub));
-    sub = call('resume', { state: sub, stepId: wait.id, waitResult: successFind('find-1', false) }, () => processor.resume({ state: sub, stepId: wait.id, waitResult: successFind('find-1', false) }));
+    sub = call('apply', { state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'find-1') }, () => processor.apply({ state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'find-1') })).state;
+    const wait = call('step', { state: sub }, () => processor.step({ state: sub })).step;
+    sub = call('resume', { state: sub, stepId: wait.id, waitResult: successFind('find-1', false) }, () => processor.resume({ state: sub, stepId: wait.id, waitResult: successFind('find-1', false) })).state;
     continue;
   }
   if (step.id === 'send_create_client') {
-    sub = call('apply', { state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'create-1') }, () => processor.apply({ state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'create-1') }));
-    const wait = call('step', sub, () => processor.step(sub));
-    sub = call('resume', { state: sub, stepId: wait.id, waitResult: successCreate('create-1') }, () => processor.resume({ state: sub, stepId: wait.id, waitResult: successCreate('create-1') }));
+    sub = call('apply', { state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'create-1') }, () => processor.apply({ state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'create-1') })).state;
+    const wait = call('step', { state: sub }, () => processor.step({ state: sub })).step;
+    sub = call('resume', { state: sub, stepId: wait.id, waitResult: successCreate('create-1') }, () => processor.resume({ state: sub, stepId: wait.id, waitResult: successCreate('create-1') })).state;
     continue;
   }
   if (step.id === 'send_bind_client') {
-    sub = call('apply', { state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'bind-1') }, () => processor.apply({ state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'bind-1') }));
-    const wait = call('step', sub, () => processor.step(sub));
-    sub = call('resume', { state: sub, stepId: wait.id, waitResult: successBind('bind-1') }, () => processor.resume({ state: sub, stepId: wait.id, waitResult: successBind('bind-1') }));
+    sub = call('apply', { state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'bind-1') }, () => processor.apply({ state: sub, stepId: step.id, effectResult: accepted(step.operationId, 'bind-1') })).state;
+    const wait = call('step', { state: sub }, () => processor.step({ state: sub })).step;
+    sub = call('resume', { state: sub, stepId: wait.id, waitResult: successBind('bind-1') }, () => processor.resume({ state: sub, stepId: wait.id, waitResult: successBind('bind-1') })).state;
     continue;
   }
   break;

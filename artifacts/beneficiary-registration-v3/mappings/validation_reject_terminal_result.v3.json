@@ -1,0 +1,12 @@
+{
+  "mappingId": "mappings.fl_resident.validation_reject_terminal_result",
+  "sources": { "validation": "object" },
+  "output": {
+    "status": { "literal": "FAIL" },
+    "outcome": { "literal": "VALIDATION_REJECT" },
+    "reasonCode": { "from": "sources.validation.reasonCode" },
+    "merchantMessage": { "from": "sources.validation.merchantMessage" },
+    "responseMode": { "from": "sources.validation.responseMode" },
+    "errors": { "from": "sources.validation.merchantErrorList" }
+  }
+}

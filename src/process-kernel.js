@@ -11,18 +11,28 @@ function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function ensureObject(value, message) {
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function ensureObject(value, message, details = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new HttpError(400, message);
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', message, details);
   }
 }
 
 function mapRuntimeError(error) {
   if (error instanceof HttpError) return error;
   if (error && typeof error === 'object' && 'name' in error && String(error.name).includes('RuntimeError')) {
-    return new HttpError(409, error.message, { name: error.name, code: error.code, details: error.details });
+    return new HttpError(409, 'runtime_error', 'WORKFLOW_STATE_INVALID', error.message, {
+      semanticsErrorName: error.name,
+      semanticsErrorCode: error.code ?? null,
+      semanticsDetails: error.details ?? {}
+    });
   }
-  return new HttpError(409, error?.message || 'Runtime error.', { name: error?.name || 'Error' });
+  return new HttpError(409, 'runtime_error', 'WORKFLOW_STATE_INVALID', error?.message || 'Workflow state is invalid.', {
+    causeName: error?.name || 'Error'
+  });
 }
 
 function normalizeDecisionResult(raw) {
@@ -38,12 +48,14 @@ function wrapMappingInput(mappingMeta, input) {
     return { [mappingMeta.sourceNames[0]]: input };
   }
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new HttpError(409, 'Mapping step expects object input for multi-source mapping.');
+    throw new HttpError(409, 'runtime_error', 'WORKFLOW_STATE_INVALID', 'Mapping step expects object input for multi-source mapping.');
   }
   const wrapped = {};
   for (const sourceName of mappingMeta.sourceNames) {
     if (!(sourceName in input)) {
-      throw new HttpError(409, `Mapping input is missing source object: ${sourceName}`);
+      throw new HttpError(409, 'runtime_error', 'WORKFLOW_STATE_INVALID', `Mapping input is missing source object: ${sourceName}`, {
+        sourceName
+      });
     }
     wrapped[sourceName] = input[sourceName];
   }
@@ -61,14 +73,16 @@ function normalizeRulesInput(stepInput) {
 }
 
 export function validateStateShape(state) {
-  ensureObject(state, 'Request body must be a ProcessState object.');
+  ensureObject(state, 'Request body must contain a valid ProcessState in the state field.');
   for (const key of ['processId', 'id', 'version', 'status', 'traceMode', 'currentStepId', 'currentStepType', 'currentStepSubtype', 'context', 'history', 'result', 'meta']) {
     if (!(key in state)) {
-      throw new HttpError(400, `ProcessState is missing required field: ${key}`);
+      throw new HttpError(400, 'request_error', 'REQUEST_INVALID', `ProcessState is missing required field: ${key}`, { field: key });
     }
   }
   if (!['off', 'basic', 'verbose'].includes(state.traceMode)) {
-    throw new HttpError(400, 'ProcessState.traceMode must be one of: off, basic, verbose.');
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'ProcessState.traceMode must be one of: off, basic, verbose.', {
+      field: 'traceMode'
+    });
   }
 }
 
@@ -89,27 +103,57 @@ export function normalizeStateForTransport(runtime, state) {
   if (!Array.isArray(next.history)) next.history = [];
   if (!('result' in next)) next.result = null;
   if (!next.meta || typeof next.meta !== 'object' || Array.isArray(next.meta)) next.meta = {};
-  return next;
+  return applyPrecomputedTerminalResult(next);
+}
+
+function applyPrecomputedTerminalResult(state) {
+  if (!['COMPLETE', 'FAIL'].includes(state.status)) {
+    return state;
+  }
+  const terminalResult = state.context?.facts?.terminalResult;
+  if (!isPlainObject(terminalResult)) {
+    return state;
+  }
+  state.result = cloneJson(terminalResult);
+  return state;
 }
 
 export function startProcess(project, request) {
   ensureObject(request, 'Request body must be an object.');
   if (!request.processId || typeof request.processId !== 'string') {
-    throw new HttpError(400, 'processId is required and must be a string.');
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'processId is required and must be a string.', {
+      field: 'processId'
+    });
   }
-  ensureObject(request.application, 'application is required and must be an object.');
-  const rawApplication = request.application.payload ?? request.application;
-  ensureObject(rawApplication, 'application payload must be an object.');
-  const currentDate = request.application?.context?.currentDate ?? request.context?.currentDate ?? new Date().toISOString().slice(0, 10);
+  if (request.flowId != null && typeof request.flowId !== 'string') {
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'flowId must be a string when provided.', {
+      field: 'flowId'
+    });
+  }
+  if (request.flowVersion != null && typeof request.flowVersion !== 'string') {
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'flowVersion must be a string when provided.', {
+      field: 'flowVersion'
+    });
+  }
+  ensureObject(request.input, 'input is required and must be an object.', { field: 'input' });
+  ensureObject(request.input.application, 'input.application is required and must be an object.', { field: 'input.application' });
+  if (request.input.currentDate != null && typeof request.input.currentDate !== 'string') {
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'input.currentDate must be a string when provided.', {
+      field: 'input.currentDate'
+    });
+  }
+
+  const currentDate = request.input.currentDate ?? new Date().toISOString().slice(0, 10);
   const flowId = request.flowId ? String(request.flowId) : project.defaultRuntime.flowInfo.id;
   const flowVersion = request.flowVersion ? String(request.flowVersion) : (flowId === project.defaultRuntime.flowInfo.id ? project.defaultRuntime.flowInfo.version : undefined);
   const runtime = project.getRuntime(flowId, flowVersion);
+
   try {
     const createdState = semantics.createProcessState({
       flow: runtime.preparedFlow,
       processId: request.processId,
       input: {
-        application: cloneJson(rawApplication),
+        application: cloneJson(request.input.application),
         currentDate
       },
       meta: {
@@ -139,7 +183,11 @@ export function executeStep(project, state, step = undefined) {
   const runtime = project.getRuntimeByState(state);
   const plannedStep = step ?? planStep(project, state);
   if (plannedStep.type !== 'PROCESS') {
-    throw new HttpError(409, 'executeStep only supports PROCESS steps.');
+    throw new HttpError(409, 'runtime_error', 'STEP_TYPE_INVALID', 'Current step is not a PROCESS step.', {
+      expectedType: 'PROCESS',
+      actualType: plannedStep.type ?? null,
+      currentStepId: plannedStep.id ?? state.currentStepId
+    });
   }
   try {
     if (plannedStep.subtype === 'RULES') {
@@ -157,7 +205,9 @@ export function executeStep(project, state, step = undefined) {
     if (plannedStep.subtype === 'DECISIONS') {
       return normalizeDecisionResult(decisions.evaluate(runtime.compiledDecisions, plannedStep.artefactId, plannedStep.input));
     }
-    throw new HttpError(409, `Unsupported PROCESS subtype: ${plannedStep.subtype}`);
+    throw new HttpError(409, 'runtime_error', 'WORKFLOW_STATE_INVALID', `Unsupported PROCESS subtype: ${plannedStep.subtype}`, {
+      subtype: plannedStep.subtype ?? null
+    });
   } catch (error) {
     throw mapRuntimeError(error);
   }
@@ -174,12 +224,16 @@ export function reduceStep(project, state, step, stepOutput) {
 }
 
 function normalizeExternalResult(value, label) {
-  ensureObject(value, `${label} is required and must be an object.`);
+  ensureObject(value, `${label} is required and must be an object.`, { field: label });
   if (!value.requestId || typeof value.requestId !== 'string') {
-    throw new HttpError(400, `${label}.requestId is required and must be a string.`);
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', `${label}.requestId is required and must be a string.`, {
+      field: `${label}.requestId`
+    });
   }
   if (value.result != null && value.error != null) {
-    throw new HttpError(400, `${label} must not contain both result and error.`);
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', `${label} must not contain both result and error.`, {
+      field: label
+    });
   }
   return cloneJson({
     requestId: value.requestId,
@@ -192,7 +246,9 @@ function normalizeExternalResult(value, label) {
 export function applyStepEffect(project, state, stepId, effectResult) {
   validateStateShape(state);
   if (!stepId || typeof stepId !== 'string') {
-    throw new HttpError(400, 'stepId is required and must be a string.');
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'stepId is required and must be a string.', {
+      field: 'stepId'
+    });
   }
   const runtime = project.getRuntimeByState(state);
   try {
@@ -206,7 +262,9 @@ export function applyStepEffect(project, state, stepId, effectResult) {
 export function resumeProcess(project, state, stepId, waitResult) {
   validateStateShape(state);
   if (!stepId || typeof stepId !== 'string') {
-    throw new HttpError(400, 'stepId is required and must be a string.');
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'stepId is required and must be a string.', {
+      field: 'stepId'
+    });
   }
   const runtime = project.getRuntimeByState(state);
   try {

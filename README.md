@@ -1,130 +1,225 @@
-# Beneficiary Processor v3
+# Процессор потока данных по заявкам бенефициаров
 
-Processor v3 is the HTTP facade over the Flow3 semantics stack for the beneficiaries PoC.
+`processor` это сервис обработки заявок по бенефициарам номинальных счетов. Он исполняет шаги бизнес-процесса над текущим состоянием workflow, возвращает новое состояние и отдаёт готовый прикладной результат, пригодный для внешнего статуса заявки.
 
-## What the service does
+В текущем контуре сервис покрывает цели и задачи PoC и сценарии регистрации **ФЛ-резидента** и используется как внешний модуль в виде Node-процессора рядом с Java-оркестратором.
 
-The service is split into two layers:
+## Что делает сервис
 
-- **semantics kernel** — canonical lifecycle over prepared flow artifacts:
-  - `startProcess(...)`
-  - `planStep(...)`
-  - `executeStep(...)`
-  - `reduceStep(...)`
-  - `applyStepEffect(...)`
-  - `resumeProcess(...)`
-- **HTTP facade** — transport-safe JSON API for host/orchestrator integration:
-  - `POST /init`
-  - `POST /step`
-  - `POST /execute`
-  - `POST /apply`
-  - `POST /resume`
-  - `GET /health`
+Сервис:
 
-The processor knows how to execute a process **by canon**. It does not know the business meaning of a beneficiary flow. Business logic stays in artifacts: flow, rules, mappings and decisions.
+- создаёт начальное состояние workflow по входной заявке;
+- определяет текущий шаг процесса;
+- выполняет внутренние шаги обработки `PROCESS`;
+- продвигает маршрутизирующие шаги `CONTROL`;
+- применяет результаты внешних вызовов `EFFECT`;
+- завершает `WAIT` внешним результатом и продолжает workflow;
+- отдаёт финальный прикладной результат процесса через `state.result`.
 
-## Canonical project preparation
+Сервис **не** хранит жизненный цикл workflow целиком и **не** владеет инфраструктурой исполнения.
 
-At bootstrap the service performs project-level preparation:
+## Место в архитектуре
 
-- loads all artifact sets from the artifact root
-- validates every flow through `@processengine/semantics`
-- prepares rules, mappings and decisions
-- validates cross-artifact references:
-  - `PROCESS/RULES -> rules entrypoint`
-  - `PROCESS/MAPPINGS -> prepared mapping`
-  - `PROCESS/DECISIONS -> compiled decision set`
-  - `EFFECT/SUBFLOW -> registered flowId + flowVersion`
-- builds a **version-aware runtime registry**
+### Java-оркестратор
 
-This closes the gap between plain service wiring and a canonical process-layer runtime.
+Оркестратор отвечает за:
 
-## Artifact sets bundled in the archive
+- хранение состояния workflow;
+- очереди, ретраи и recovery;
+- ожидание внешних результатов;
+- корреляцию ответов;
+- публикацию внешнего статуса заявки;
+- HTTP-контракт для мерчанта.
 
-### Main flow
+### Node-процессор
 
-`artifacts/beneficiary-registration-v3`
+Процессор отвечает за:
 
-- flow: `beneficiary.registration.v3@1.0.0`
-- happy path:
-  - `CONTROL/ROUTE` by supported scenario
-  - `PROCESS/RULES`
-  - `PROCESS/MAPPINGS`
-  - `PROCESS/DECISIONS`
-  - `CONTROL/SWITCH`
-  - `EFFECT/CALL` address validation
-  - `WAIT/MESSAGE`
-  - `PROCESS/MAPPINGS` address result extraction
-  - `CONTROL/ROUTE`
-  - `EFFECT/SUBFLOW` ABS ensure beneficiary
-  - `WAIT/MESSAGE`
-  - `TERMINAL/COMPLETE`
+- каноническое продвижение состояния workflow;
+- исполнение внутренних шагов по артефактам процесса;
+- применение результата внешнего эффекта и завершение ожидания;
+- выдачу финального предметного результата через `state.result`;
+- проверку готовности артефактов на старте.
 
-### ABS subflow
+### Артефакты процесса
 
-`artifacts/beneficiary-persist-and-link-v3`
+В артефактах формата Flow3 живёт прикладная логика:
 
-- flow: `abs.ensure_fl_resident_beneficiary@1.0.0`
-- happy path:
-  - `EFFECT/COMMAND FIND_CLIENT`
-  - `WAIT/MESSAGE`
-  - `PROCESS/DECISIONS`
-  - `CONTROL/SWITCH`
-  - `EFFECT/COMMAND CREATE_CLIENT`
-  - `WAIT/MESSAGE`
-  - `EFFECT/COMMAND BIND_CLIENT`
-  - `WAIT/MESSAGE`
-  - `TERMINAL/COMPLETE`
+- `flow` описывает шаги и маршруты;
+- `rules` возвращают сырой результат проверок;
+- `mappings` интерпретируют его в устойчивые факты и режим ответа;
+- `decisions` выбирают исход ветки процесса.
 
-## Init contract
+Дальнейшее развитие процессинга будет происходить через артефакты, а не через сервисный код процессора.
 
-The service accepts both envelopes.
+## Какой бизнес-процесс реализован сейчас
 
-### Legacy envelope
+Текущий основной flow `beneficiary.registration.v3@1.0.0`.
+
+Он покрывает happy path:
+
+1. определить поддерживаемый сценарий заявки;
+2. провалидировать заявку на регистрацию бенефициара;
+3. интерпретировать результат проверок в прикладные факты;
+4. принять решение: отклонить заявку или продолжать процесс;
+5. проверить адрес;
+6. вызвать ABS-сабфлоу по созданию, поиску и привязке бенефициара;
+7. завершить процесс предметным результатом.
+
+Текущий сабфлоу `abs.ensure_fl_resident_beneficiary@1.0.0`.
+
+## Прикладные исходы процесса
+
+Процессор хранит:
+
+- сырой результат правил в `context.checks`;
+- интерпретированные факты в `context.facts`;
+- решение в `context.decisions`;
+- финальный предметный результат в `state.result`.
+
+Для validation-ветки наружу разведены как минимум два разных отказа:
+
+- `COMPLIANCE_REJECT` заявка отклонена по регуляторной причине;
+- `VALIDATION_REJECT`заявка отклонена, есть ошибки в данных.
+
+### Пример результата для validation reject
 
 ```json
 {
-  "processId": "proc-1",
-  "application": {
-    "payload": { "beneficiary": {} },
-    "context": { "currentDate": "2026-04-12" }
+  "status": "FAIL",
+  "outcome": "VALIDATION_REJECT",
+  "reasonCode": "VALIDATION_ERROR",
+  "merchantMessage": "Заявка отклонена. Есть ошибки",
+  "responseMode": "DETAILED_ERRORS",
+  "errors": [
+    {
+      "code": "BEN.IDDOC.ISSUE_DATE.NOT_FUTURE",
+      "message": "Дата выдачи документа не должна быть больше текущей даты",
+      "field": "beneficiary.idDoc.issueDate"
+    }
+  ]
+}
+```
+
+### Пример результата для compliance reject
+
+```json
+{
+  "status": "FAIL",
+  "outcome": "COMPLIANCE_REJECT",
+  "reasonCode": "REGULATORY_REJECT",
+  "merchantMessage": "Заявка отклонена по регуляторной причине",
+  "responseMode": "GENERALIZED_ERROR",
+  "errors": []
+}
+```
+
+### Важная оговорка по текущей preprod-версии
+
+В текущем preprod-варианте массив `errors` может содержать **расширенные issue-объекты** из результата `rules`, а не окончательно узкий merchant-shape.
+
+Это **временный компромисс текущей версии**, связанный с ограничениями текущего `@processengine/mappings` при работе с массивами. Целевой узкий merchant-формат `errors[]` требует отдельной доработки DSL и не должен собираться в коде процессора.
+
+Оркестратор **не должен** сам заново интерпретировать `checks.issues[]` для определения типа отказа. Он должен читать уже сформированный `state.result`.
+
+## HTTP API
+
+Публичные runtime-ручки:
+
+- `POST /init`
+- `POST /step`
+- `POST /run`
+- `POST /route`
+- `POST /apply`
+- `POST /resume`
+- `GET /health`
+
+Документация:
+
+- `GET /openapi.json`
+- `GET /docs`
+
+Устаревшая ручка:
+
+- `POST /execute` — tombstone, всегда возвращает `410 ENDPOINT_DEPRECATED`
+
+### Что делают ручки
+
+- `/init` — создаёт начальное состояние workflow;
+- `/step` — возвращает текущий нормализованный шаг без изменения состояния;
+- `/run` — выполняет только текущий шаг верхнего типа `PROCESS`;
+- `/route` — продвигает только текущий шаг верхнего типа `CONTROL`;
+- `/apply` — применяет результат внешнего `EFFECT`;
+- `/resume` — завершает `WAIT` внешним результатом и продолжает workflow.
+
+`/run` и `/route` работают только от переданного `state`. Они не принимают `stepId` или `step`.
+
+## Readiness и артефакты
+
+На старте сервис:
+
+- читает все artifact sets;
+- валидирует flow;
+- подготавливает rules, mappings и decisions;
+- проверяет ссылки между flow и артефактами;
+- собирает version-aware runtime registry.
+
+Если набор артефактов некорректен, сервис не входит в рабочий режим:
+
+- `GET /health` возвращает `503` и `status: "not_ready"`;
+- рабочие runtime-ручки отвечают `503 PROJECT_NOT_READY`;
+- причина неготовности видна в `diagnostics`.
+
+Пример ответа `/health`:
+
+```json
+{
+  "status": "ready",
+  "artifactRuntime": {
+    "ready": true,
+    "defaultFlow": {
+      "flowId": "beneficiary.registration.v3",
+      "flowVersion": "1.0.0"
+    },
+    "flows": [
+      {
+        "flowId": "beneficiary.registration.v3",
+        "flowVersion": "1.0.0",
+        "artifactSetId": "beneficiary-registration-v3",
+        "artifactSetVersion": "1.0.0"
+      }
+    ],
+    "diagnostics": []
   }
 }
 ```
 
-### Simplified envelope
+## Как сервис решает задачу технически
 
-```json
-{
-  "processId": "proc-1",
-  "application": { "beneficiary": {} },
-  "context": { "currentDate": "2026-04-12" }
-}
-```
+Внутри сервис использует ProcessEngine-стек:
 
-Both normalize to:
+- `@processengine/semantics` — каноническое продвижение состояния;
+- `@processengine/rules` — выполнение правил;
+- `@processengine/mappings` — интерпретация результатов и нормализация данных;
+- `@processengine/decisions` — выбор outcome.
 
-```json
-{
-  "input": {
-    "application": { ... },
-    "currentDate": "2026-04-12"
-  }
-}
-```
+Это внутренняя реализация. Для интегратора важнее то, что сервис является процессором потока данных по заявкам и возвращает пригодный прикладной результат, уже подготовленный артефактами процесса.
 
-You may also pass explicit version-aware routing:
+## Структура артефактов
 
-```json
-{
-  "processId": "proc-1",
-  "flowId": "beneficiary.registration.v3",
-  "flowVersion": "1.0.0",
-  "application": { "beneficiary": {} }
-}
-```
+Основной flow:
 
-## Local run
+- `artifacts/beneficiary-registration-v3`
+- flow `beneficiary.registration.v3@1.0.0`
+
+ABS-сабфлоу:
+
+- `artifacts/beneficiary-persist-and-link-v3`
+- flow `abs.ensure_fl_resident_beneficiary@1.0.0`
+
+Файловая модель артефактов в этой задаче сохранена. Сервис не переводит их в `npm`-пакеты и не подменяет отдельным административным контуром.
+
+## Локальный запуск
 
 ```bash
 npm install
@@ -134,7 +229,7 @@ PORT=3000 \
 node src/server.js
 ```
 
-Environment:
+Переменные окружения:
 
 ```bash
 PORT=3000
@@ -146,33 +241,24 @@ PROCESSOR_DEFAULT_FLOW_VERSION=1.0.0
 PROCESSOR_LOG_DIR=./processlogs
 ```
 
-## Health
+Swagger UI: `http://localhost:3000/docs`  
+OpenAPI JSON: `http://localhost:3000/openapi.json`
 
-```bash
-curl http://localhost:3000/health
-```
+## Проверки
 
-The response now includes the prepared flows with explicit versions.
-
-## Tests
+Юнит-тесты:
 
 ```bash
 npm test
 ```
 
-The tests cover:
-
-- project-level preparation with version-aware runtime lookup
-- canonical `init -> step -> execute` progression for the main flow
-
-## Smoke without HTTP
+Smoke-проверка happy path:
 
 ```bash
-node scripts/smoke-v3.mjs
+npm run smoke
 ```
 
-The smoke script demonstrates:
+Сейчас smoke подтверждает:
 
-- main flow happy path
-- ABS subflow happy path
-- canonical `SUBFLOW` resume shape where parent `waitResult.result` is the child terminal `state.result`
+- основной flow завершается `COMPLETE / BENEFICIARY_REGISTERED`;
+- ABS-сабфлоу завершается `COMPLETE / ABS_ENSURE_BENEFICIARY_DONE`.

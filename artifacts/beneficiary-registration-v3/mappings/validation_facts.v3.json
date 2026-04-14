@@ -6,13 +6,52 @@
       "mapValue": {
         "from": "sources.validation.status",
         "map": {
-          "EXCEPTION": "EXCEPTION",
-          "ERROR": "ERROR",
-          "OK": "OK",
-          "OK_WITH_WARNINGS": "OK_WITH_WARNINGS"
+          "EXCEPTION": "COMPLIANCE_REJECT",
+          "ERROR": "VALIDATION_REJECT",
+          "OK": "CONTINUE",
+          "OK_WITH_WARNINGS": "CONTINUE"
         },
         "fallback": "UNKNOWN"
       }
+    },
+    "responseMode": {
+      "mapValue": {
+        "from": "sources.validation.status",
+        "map": {
+          "EXCEPTION": "GENERALIZED_ERROR",
+          "ERROR": "DETAILED_ERRORS",
+          "OK": "SUCCESS",
+          "OK_WITH_WARNINGS": "SUCCESS"
+        },
+        "fallback": "UNKNOWN"
+      }
+    },
+    "reasonCode": {
+      "mapValue": {
+        "from": "sources.validation.status",
+        "map": {
+          "EXCEPTION": "REGULATORY_REJECT",
+          "ERROR": "VALIDATION_ERROR",
+          "OK": "VALIDATION_OK",
+          "OK_WITH_WARNINGS": "VALIDATION_WARNING"
+        },
+        "fallback": "UNKNOWN"
+      }
+    },
+    "merchantMessage": {
+      "mapValue": {
+        "from": "sources.validation.status",
+        "map": {
+          "EXCEPTION": "Заявка отклонена по регуляторной причине",
+          "ERROR": "Заявка отклонена. Есть ошибки",
+          "OK": "Проверки заявки пройдены",
+          "OK_WITH_WARNINGS": "Проверки заявки пройдены"
+        },
+        "fallback": "Результат проверки заявки не определён"
+      }
+    },
+    "merchantErrorList": {
+      "from": "sources.validation.issues"
     },
     "hasErrors": { "equals": ["sources.validation.status", "ERROR"] },
     "hasWarnings": { "equals": ["sources.validation.status", "OK_WITH_WARNINGS"] },

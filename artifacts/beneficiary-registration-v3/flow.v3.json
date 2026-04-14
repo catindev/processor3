@@ -69,12 +69,26 @@
       "subtype": "SWITCH",
       "decisionSetId": "validation",
       "cases": {
-        "EXCEPTION": "finish_reject_validation",
-        "ERROR": "finish_reject_validation",
-        "OK": "validate_registration_address",
-        "OK_WITH_WARNINGS": "validate_registration_address"
+        "REJECT_COMPLIANCE": "finish_reject_compliance",
+        "REJECT_VALIDATION": "build_validation_reject_terminal_result",
+        "CONTINUE": "validate_registration_address"
       },
       "defaultNextStepId": "finish_fail_technical"
+    },
+    "build_validation_reject_terminal_result": {
+      "id": "build_validation_reject_terminal_result",
+      "type": "PROCESS",
+      "subtype": "MAPPINGS",
+      "artefactId": "mappings.fl_resident.validation_reject_terminal_result",
+      "contract": {
+        "input": {
+          "ref": "$.context.facts.validation"
+        },
+        "output": {
+          "ref": "$.context.facts.terminalResult"
+        }
+      },
+      "nextStepId": "finish_reject_validation"
     },
     "validate_registration_address": {
       "id": "validate_registration_address",
@@ -145,7 +159,10 @@
       "subtype": "COMPLETE",
       "result": {
         "status": "COMPLETE",
-        "outcome": "BENEFICIARY_REGISTERED"
+        "outcome": "BENEFICIARY_REGISTERED",
+        "reasonCode": "REQUEST_COMPLETED",
+        "merchantMessage": "Заявка успешно обработана",
+        "errors": []
       }
     },
     "finish_fail_poc_scenario_not_supported": {
@@ -155,7 +172,22 @@
       "result": {
         "status": "FAIL",
         "outcome": "POC_SCENARIO_NOT_SUPPORTED",
-        "message": "Сервис ограничен сценарием ФЛ резидент"
+        "reasonCode": "SCENARIO_NOT_SUPPORTED",
+        "merchantMessage": "Сервис пока поддерживает только сценарий регистрации ФЛ-резидента",
+        "errors": []
+      }
+    },
+    "finish_reject_compliance": {
+      "id": "finish_reject_compliance",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "COMPLIANCE_REJECT",
+        "reasonCode": "REGULATORY_REJECT",
+        "merchantMessage": "Заявка отклонена по регуляторной причине",
+        "responseMode": "GENERALIZED_ERROR",
+        "errors": []
       }
     },
     "finish_reject_validation": {
@@ -164,7 +196,11 @@
       "subtype": "FAIL",
       "result": {
         "status": "FAIL",
-        "outcome": "VALIDATION_REJECT"
+        "outcome": "VALIDATION_REJECT",
+        "reasonCode": "VALIDATION_ERROR",
+        "merchantMessage": "Заявка отклонена. Есть ошибки",
+        "responseMode": "DETAILED_ERRORS",
+        "errors": []
       }
     },
     "finish_reject_address": {
@@ -173,7 +209,10 @@
       "subtype": "FAIL",
       "result": {
         "status": "FAIL",
-        "outcome": "ADDRESS_NOT_VERIFIED"
+        "outcome": "ADDRESS_NOT_VERIFIED",
+        "reasonCode": "ADDRESS_VALIDATION_FAILED",
+        "merchantMessage": "Заявка отклонена. Адрес не прошёл проверку",
+        "errors": []
       }
     },
     "finish_fail_technical": {
@@ -182,7 +221,10 @@
       "subtype": "FAIL",
       "result": {
         "status": "FAIL",
-        "outcome": "TECHNICAL_FAILURE"
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "TECHNICAL_FAILURE",
+        "merchantMessage": "Не удалось завершить обработку заявки из-за технической ошибки",
+        "errors": []
       }
     }
   }

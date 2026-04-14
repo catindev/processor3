@@ -5,16 +5,26 @@ import * as semantics from '@processengine/semantics';
 import * as mappings from '@processengine/mappings';
 import * as rules from '@processengine/rules';
 import { operatorPacks } from './operator-packs.js';
+import { ProjectLoadError } from './errors.js';
 
 const require = createRequire(import.meta.url);
 const decisions = require('@processengine/decisions');
 
 function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    throw new ProjectLoadError(`Failed to read JSON file: ${filePath}`, [
+      `Failed to read JSON file: ${filePath}`,
+      error?.message || 'Unknown JSON read error.'
+    ], { filePath });
+  }
 }
 
 function mustExist(filePath, label) {
-  if (!fs.existsSync(filePath)) throw new Error(`${label} not found: ${filePath}`);
+  if (!fs.existsSync(filePath)) {
+    throw new ProjectLoadError(`${label} not found: ${filePath}`, [`${label} not found: ${filePath}`], { filePath, label });
+  }
 }
 
 function rulesEntrypoints(rulesSource) {
@@ -73,30 +83,82 @@ function loadArtifactSet(setDir, config) {
 
   const flowSource = readJson(flowPath);
   if (manifest.flowId && manifest.flowId !== flowSource.id) {
-    throw new Error(`Artifact manifest flowId ${manifest.flowId} does not match flow.id ${flowSource.id} in ${flowPath}`);
+    throw new ProjectLoadError(`Artifact manifest flowId ${manifest.flowId} does not match flow.id ${flowSource.id}.`, [
+      `Artifact manifest flowId ${manifest.flowId} does not match flow.id ${flowSource.id} in ${flowPath}`
+    ], {
+      manifestFlowId: manifest.flowId,
+      flowId: flowSource.id,
+      filePath: flowPath
+    });
   }
 
   const flowValidation = semantics.validateFlow(flowSource);
   if (!flowValidation.isValid) {
-    throw new Error(`Flow validation failed for ${flowSource.id}@${flowSource.version}: ${semantics.formatValidationIssues(flowValidation.errors)}`);
+    throw new ProjectLoadError(`Flow validation failed for ${flowSource.id}@${flowSource.version}.`, [
+      `Flow validation failed for ${flowSource.id}@${flowSource.version}: ${semantics.formatValidationIssues(flowValidation.errors)}`
+    ], {
+      flowId: flowSource.id,
+      flowVersion: flowSource.version
+    });
   }
-  const preparedFlow = semantics.prepareFlow(flowSource);
+  let preparedFlow;
+  try {
+    preparedFlow = semantics.prepareFlow(flowSource);
+  } catch (error) {
+    throw new ProjectLoadError(`Flow prepare failed for ${flowSource.id}@${flowSource.version}.`, [
+      `Flow prepare failed for ${flowSource.id}@${flowSource.version}: ${error?.message || 'Unknown prepare error.'}`
+    ], {
+      flowId: flowSource.id,
+      flowVersion: flowSource.version
+    });
+  }
 
   const rulesSource = readJson(rulesPath);
   const operatorPack = operatorPacks[manifest.operatorPackId] || { check: {}, predicate: {} };
-  const preparedRules = rules.prepareRules(rulesSource, { operators: operatorPack });
+  let preparedRules;
+  try {
+    preparedRules = rules.prepareRules(rulesSource, { operators: operatorPack });
+  } catch (error) {
+    throw new ProjectLoadError(`Rules prepare failed for ${flowSource.id}@${flowSource.version}.`, [
+      `Rules prepare failed for ${flowSource.id}@${flowSource.version}: ${error?.message || 'Unknown rules prepare error.'}`
+    ], {
+      flowId: flowSource.id,
+      flowVersion: flowSource.version
+    });
+  }
 
   const mappingRegistry = new Map();
   for (const [mappingId, relPath] of Object.entries(manifest.mappingFiles || {})) {
     const mappingPath = path.join(setDir, relPath);
     mustExist(mappingPath, `Mapping file for ${mappingId}`);
     const source = readJson(mappingPath);
-    const prepared = mappings.prepareMappings(source);
+    let prepared;
+    try {
+      prepared = mappings.prepareMappings(source);
+    } catch (error) {
+      throw new ProjectLoadError(`Mapping prepare failed for ${mappingId} in ${flowSource.id}@${flowSource.version}.`, [
+        `Mapping prepare failed for ${mappingId} in ${flowSource.id}@${flowSource.version}: ${error?.message || 'Unknown mapping prepare error.'}`
+      ], {
+        mappingId,
+        flowId: flowSource.id,
+        flowVersion: flowSource.version
+      });
+    }
     mappingRegistry.set(mappingId, { source, prepared, sourceNames: Object.keys(source.sources || {}) });
   }
 
   const decisionsSource = readJson(decisionsPath);
-  const compiledDecisions = decisions.compile(decisionsSource);
+  let compiledDecisions;
+  try {
+    compiledDecisions = decisions.compile(decisionsSource);
+  } catch (error) {
+    throw new ProjectLoadError(`Decisions compile failed for ${flowSource.id}@${flowSource.version}.`, [
+      `Decisions compile failed for ${flowSource.id}@${flowSource.version}: ${error?.message || 'Unknown decisions compile error.'}`
+    ], {
+      flowId: flowSource.id,
+      flowVersion: flowSource.version
+    });
+  }
 
   return {
     config,
@@ -135,7 +197,7 @@ export function validateProcessProject(config) {
   }
 
   if (!runtimes.length) {
-    throw new Error(`No artifact sets found under: ${rootDir}`);
+    throw new ProjectLoadError(`No artifact sets found under: ${rootDir}`, [`No artifact sets found under: ${rootDir}`], { artifactDir: rootDir });
   }
 
   const byVersionKey = new Map();
@@ -143,7 +205,7 @@ export function validateProcessProject(config) {
   for (const runtime of runtimes) {
     const key = versionKey(runtime.flowInfo.id, runtime.flowInfo.version);
     if (byVersionKey.has(key)) {
-      throw new Error(`Duplicate flow runtime registered for ${key}`);
+      throw new ProjectLoadError(`Duplicate flow runtime registered for ${key}`, [`Duplicate flow runtime registered for ${key}`], { flowKey: key });
     }
     byVersionKey.set(key, runtime);
     if (!byFlowId.has(runtime.flowInfo.id)) byFlowId.set(runtime.flowInfo.id, []);
@@ -173,7 +235,7 @@ export function validateProcessProject(config) {
 export function prepareProcessProject(config) {
   const report = validateProcessProject(config);
   if (report.hasErrors) {
-    throw new Error(`Process project validation failed:\n- ${report.diagnostics.join('\n- ')}`);
+    throw new ProjectLoadError('Process project validation failed.', report.diagnostics, { diagnosticsCount: report.diagnostics.length });
   }
 
   const runtimesByVersionKey = new Map();
@@ -192,7 +254,11 @@ export function prepareProcessProject(config) {
   } else if (defaultCandidates.length === 1) {
     defaultRuntime = defaultCandidates[0];
   } else if (defaultCandidates.length > 1) {
-    throw new Error(`Multiple versions registered for default flowId ${config.defaultFlowId}. Set PROCESSOR_DEFAULT_FLOW_VERSION explicitly.`);
+    throw new ProjectLoadError(`Multiple versions registered for default flowId ${config.defaultFlowId}.`, [
+      `Multiple versions registered for default flowId ${config.defaultFlowId}. Set PROCESSOR_DEFAULT_FLOW_VERSION explicitly.`
+    ], {
+      flowId: config.defaultFlowId
+    });
   }
   if (!defaultRuntime) {
     defaultRuntime = report.runtimes[0];

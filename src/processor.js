@@ -2,7 +2,6 @@ import { HttpError } from './errors.js';
 import {
   applyStepEffect,
   executeStep,
-  normalizeStateForTransport,
   planStep,
   reduceStep,
   resumeProcess,
@@ -12,62 +11,114 @@ import {
 
 function ensureObject(value, message) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new HttpError(400, message);
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', message);
   }
+}
+
+function assertStateCommand(body) {
+  ensureObject(body, 'Request body must be an object.');
+  validateStateShape(body.state);
+  return body.state;
 }
 
 function assertStepResultBody(body, resultFieldName) {
-  ensureObject(body, 'Request body must be an object.');
-  validateStateShape(body.state);
+  const state = assertStateCommand(body);
   if (!body.stepId || typeof body.stepId !== 'string') {
-    throw new HttpError(400, 'stepId is required and must be a string.');
+    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'stepId is required and must be a string.', {
+      field: 'stepId'
+    });
   }
   ensureObject(body[resultFieldName], `${resultFieldName} is required and must be an object.`);
+  return { state, stepId: body.stepId, result: body[resultFieldName] };
 }
 
-export function createProcessor(project) {
+export function createProcessor(runtime) {
+  const isReady = runtime.ready && runtime.project;
+
+  function runtimeInfo() {
+    return {
+      ready: Boolean(isReady),
+      defaultFlow: runtime.defaultFlow,
+      flows: runtime.flows,
+      diagnostics: runtime.diagnostics
+    };
+  }
+
+  function assertRuntimeReady() {
+    if (!isReady) {
+      throw new HttpError(503, 'runtime_unavailable', 'PROJECT_NOT_READY', 'Processor runtime is not ready.', {
+        diagnostics: runtime.diagnostics
+      });
+    }
+    return runtime.project;
+  }
+
   return {
-    artifactInfo() {
+    health() {
       return {
-        artifactSetId: project.defaultRuntime.manifest.artifactSetId,
-        artifactSetVersion: project.defaultRuntime.manifest.artifactSetVersion,
-        flowId: project.defaultRuntime.manifest.flowId,
-        flowVersion: project.defaultRuntime.flowInfo.version,
-        flows: project.listFlows(),
-        diagnostics: project.diagnostics
+        statusCode: isReady ? 200 : 503,
+        body: {
+          status: isReady ? 'ready' : 'not_ready',
+          artifactRuntime: runtimeInfo()
+        }
       };
     },
 
     init(body) {
-      return startProcess(project, body);
+      const project = assertRuntimeReady();
+      return { state: startProcess(project, body) };
     },
 
-    step(state) {
-      validateStateShape(state);
-      return planStep(project, state);
+    step(body) {
+      const project = assertRuntimeReady();
+      return { step: planStep(project, assertStateCommand(body)) };
     },
 
-    execute(state) {
-      validateStateShape(state);
+    run(body) {
+      const project = assertRuntimeReady();
+      const state = assertStateCommand(body);
       const step = planStep(project, state);
-      if (step.type === 'CONTROL') {
-        return reduceStep(project, state, step, null);
-      }
       if (step.type !== 'PROCESS') {
-        throw new HttpError(409, 'Only PROCESS and CONTROL steps can be advanced through /execute.');
+        throw new HttpError(409, 'runtime_error', 'STEP_TYPE_INVALID', `Current step type ${step.type} is not supported by /run.`, {
+          expectedType: 'PROCESS',
+          actualType: step.type ?? null,
+          currentStepId: step.id ?? state.currentStepId
+        });
       }
       const output = executeStep(project, state, step);
-      return reduceStep(project, state, step, output);
+      return { state: reduceStep(project, state, step, output) };
+    },
+
+    route(body) {
+      const project = assertRuntimeReady();
+      const state = assertStateCommand(body);
+      const step = planStep(project, state);
+      if (step.type !== 'CONTROL') {
+        throw new HttpError(409, 'runtime_error', 'STEP_TYPE_INVALID', `Current step type ${step.type} is not supported by /route.`, {
+          expectedType: 'CONTROL',
+          actualType: step.type ?? null,
+          currentStepId: step.id ?? state.currentStepId
+        });
+      }
+      return { state: reduceStep(project, state, step, null) };
     },
 
     apply(body) {
-      assertStepResultBody(body, 'effectResult');
-      return applyStepEffect(project, body.state, body.stepId, body.effectResult);
+      const project = assertRuntimeReady();
+      const { state, stepId, result } = assertStepResultBody(body, 'effectResult');
+      return { state: applyStepEffect(project, state, stepId, result) };
     },
 
     resume(body) {
-      assertStepResultBody(body, 'waitResult');
-      return resumeProcess(project, body.state, body.stepId, body.waitResult);
+      const project = assertRuntimeReady();
+      const { state, stepId, result } = assertStepResultBody(body, 'waitResult');
+      return { state: resumeProcess(project, state, stepId, result) };
+    },
+
+    execute() {
+      throw new HttpError(410, 'deprecated_endpoint', 'ENDPOINT_DEPRECATED', 'Endpoint /execute is deprecated. Use /run for PROCESS and /route for CONTROL.', {
+        replacementEndpoints: ['/run', '/route']
+      });
     }
   };
 }

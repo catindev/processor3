@@ -90,7 +90,8 @@
       "subtype": "COMPLETE",
       "result": {
         "status": "COMPLETE",
-        "outcome": "ABS_ENSURE_BENEFICIARY_DONE"
+        "outcome": "ABS_ENSURE_BENEFICIARY_DONE",
+        "errors": []
       }
     },
     "finish_fail": {
@@ -99,7 +100,8 @@
       "subtype": "FAIL",
       "result": {
         "status": "FAIL",
-        "outcome": "TECHNICAL_FAILURE"
+        "outcome": "TECHNICAL_FAILURE",
+        "errors": []
       }
     }
   }
