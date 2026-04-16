@@ -1,0 +1,581 @@
+openapi: 3.0.3
+info:
+  title: Beneficiary Processor API
+  version: 1.0.0
+  description: |
+    HTTP-фасад над ProcessEngine для MVP-сценариев работы Host c внутренними шагами процесса.
+
+    ## Назначение
+
+    Этот API нужен Host-сервису как простой transport-контракт поверх process semantics.
+    Host не интерпретирует Flow DSL, не вычисляет маршруты сам и не мутирует ProcessState вручную.
+
+    ## Что делает Host
+
+    1. Вызывает `/init` для старта процесса
+    2. Сохраняет полученный `ProcessState`
+    3. Пока `state.status == ACTIVE`:
+       - вызывает `/step`
+       - если шаг `type = PROCESS` — вызывает `/execute`
+       - сохраняет новый `ProcessState`
+       - если новый `state.status == COMPLETE | FAIL` — останавливает loop
+
+    ## Ключевое правило текущего этапа
+
+    На текущем MVP наружу exposed только lifecycle для внутренних `PROCESS`-шагов:
+    - `RULES`
+    - `MAPPINGS`
+    - `DECISIONS`
+    - `ROUTE`
+    - `SWITCH`
+
+    `EFFECT` и `WAIT` в транспортный API пока не вынесены.
+
+    ## Поведение `/execute`
+
+    `/execute` — это host-facing façade для продвижения текущего `PROCESS`-шага.
+
+    - Для `PROCESS/RULES`, `PROCESS/MAPPINGS`, `PROCESS/DECISIONS`:
+      Processor выполняет runtime-модуль и затем коммитит результат в state.
+    - Для `PROCESS/ROUTE`, `PROCESS/SWITCH`:
+      Processor не вызывает runtime-модуль, а только коммитит уже разрешённый переход.
+    - Для `TERMINAL`, `EFFECT`, `WAIT`:
+      `/execute` возвращает `409 Conflict`.
+
+    ## Завершение процесса
+
+    Host не вызывает `/execute` для terminal state.
+    Процесс считается завершённым, когда Processor возвращает `ProcessState` со статусом:
+    - `COMPLETE`
+    - `FAIL`
+
+    После этого Host сохраняет state и прекращает execution loop.
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: health
+  - name: lifecycle
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service health information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /init:
+    post:
+      tags: [lifecycle]
+      summary: Initialize new process state
+      operationId: initProcess
+      description: |
+        Creates canonical initial `ProcessState`.
+
+        Host must use this endpoint to create a new process instance.
+        Host must not construct `ProcessState` manually.
+
+        Returned state is already transport-safe and ready for `/step`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitRequest"
+      responses:
+        "200":
+          description: Initial process state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessState"
+        "400":
+          description: Invalid init payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /step:
+    post:
+      tags: [lifecycle]
+      summary: Get current normalized step
+      operationId: getCurrentStep
+      description: |
+        Returns the current normalized step for the provided `ProcessState`.
+
+        Host uses this endpoint to discover what to do next.
+
+        Current MVP expectations:
+        - if returned step `type = PROCESS` → call `/execute`
+        - if current process is already terminal → `/step` returns `409 Conflict`
+          because terminal states are not part of the normal Host loop on this stage
+
+        Important:
+        - Host must not interpret DSL semantics manually
+        - Host must not use `selectedNextStepId` for routing decisions
+        - `selectedNextStepId` is returned only for observability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessState"
+      responses:
+        "200":
+          description: Current normalized step
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NormalizedStep"
+        "400":
+          description: Invalid process state shape
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Runtime contract violation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /execute:
+    post:
+      tags: [lifecycle]
+      summary: Advance current PROCESS step and return new process state
+      operationId: advanceProcessStep
+      description: |
+        Advances current `PROCESS` step and returns new canonical `ProcessState`.
+
+        Behavior by subtype:
+
+        - `PROCESS/RULES`
+          - execute runtime
+          - reduce result into state
+        - `PROCESS/MAPPINGS`
+          - execute runtime
+          - reduce result into state
+        - `PROCESS/DECISIONS`
+          - execute runtime
+          - reduce result into state
+        - `PROCESS/ROUTE`
+          - no runtime execution
+          - commit already resolved routing transition
+        - `PROCESS/SWITCH`
+          - no runtime execution
+          - commit already resolved routing transition
+
+        Returns `409 Conflict` when current step is not a `PROCESS` step or when process is terminal.
+
+        Host usage on current stage:
+        - call `/execute` only after `/step` returned `type = PROCESS`
+        - save returned `ProcessState`
+        - if returned `state.status == COMPLETE | FAIL` → stop loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessState"
+      responses:
+        "200":
+          description: New process state after advancing current PROCESS step
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessState"
+        "400":
+          description: Invalid process state shape
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Runtime contract violation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - flowId
+        - flowVersion
+        - steps
+      properties:
+        status:
+          type: string
+          example: ok
+        flowId:
+          type: string
+          example: beneficiary.fl_resident.validation.mvp
+        flowVersion:
+          type: string
+          example: 2026-04-09
+        steps:
+          type: integer
+          example: 5
+        artifacts:
+          type: object
+          additionalProperties: true
+
+    InitRequest:
+      type: object
+      required:
+        - processId
+        - application
+      properties:
+        processId:
+          type: string
+          description: Stable process instance identifier generated by Host
+          example: proc_001
+        traceMode:
+          type: string
+          enum: [off, basic, verbose]
+          default: off
+          description: Trace collection mode for this process instance
+        meta:
+          type: object
+          description: Optional Host technical metadata
+          additionalProperties: true
+        application:
+          $ref: "#/components/schemas/ApplicationInput"
+
+    ApplicationInput:
+      type: object
+      required:
+        - payload
+        - context
+      properties:
+        payload:
+          type: object
+          description: Subject payload passed into process input
+          additionalProperties: true
+        context:
+          type: object
+          description: Additional execution context passed into process input
+          additionalProperties: true
+
+    ProcessState:
+      type: object
+      description: |
+        Canonical runtime state of one process instance.
+
+        Host must:
+        - persist this object as returned by Processor
+        - treat it as opaque process state
+        - never mutate it manually
+
+        On current stage Host should only inspect:
+        - `status`
+        - `currentStepId`
+        - `currentStepType`
+        - `currentStepSubtype`
+        - `result`
+      required:
+        - processId
+        - id
+        - version
+        - status
+        - traceMode
+        - currentStepId
+        - currentStepType
+        - currentStepSubtype
+        - context
+        - history
+        - result
+        - meta
+      properties:
+        processId:
+          type: string
+          example: proc_001
+        id:
+          type: string
+          description: Flow definition identifier
+          example: beneficiary.fl_resident.validation.mvp
+        version:
+          type: string
+          description: Flow definition version
+          example: 2026-04-09
+        status:
+          type: string
+          enum: [ACTIVE, WAITING, COMPLETE, FAIL]
+        traceMode:
+          type: string
+          enum: [off, basic, verbose]
+        currentStepId:
+          type: string
+          example: validate_input
+        currentStepType:
+          type: string
+          enum: [PROCESS, EFFECT, WAIT, TERMINAL]
+        currentStepSubtype:
+          type: string
+          description: Current step subtype
+          example: RULES
+        context:
+          $ref: "#/components/schemas/ProcessContext"
+        history:
+          type: array
+          description: Technical execution history
+          items:
+            $ref: "#/components/schemas/HistoryEntry"
+        result:
+          nullable: true
+          description: Final subject-level result; null before terminal completion
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: "null"
+        meta:
+          type: object
+          description: Host technical metadata
+          additionalProperties: true
+
+    ProcessContext:
+      type: object
+      required:
+        - input
+        - checks
+        - facts
+        - decisions
+        - steps
+        - effects
+      properties:
+        input:
+          type: object
+          description: Immutable process input
+          required:
+            - application
+          properties:
+            application:
+              $ref: "#/components/schemas/ApplicationInput"
+        checks:
+          type: object
+          additionalProperties: true
+        facts:
+          type: object
+          additionalProperties: true
+        decisions:
+          type: object
+          additionalProperties: true
+        steps:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/StepTrace"
+        effects:
+          type: object
+          additionalProperties: true
+
+    StepTrace:
+      type: object
+      required:
+        - status
+        - startedAt
+        - finishedAt
+        - failureCode
+        - reason
+      properties:
+        status:
+          type: string
+          enum: [COMPLETED, WAITING, FAILED]
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        finishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        failureCode:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        selectedNextStepId:
+          type: string
+          description: Present only for PROCESS/ROUTE and PROCESS/SWITCH technical trace
+          nullable: true
+
+    HistoryEntry:
+      type: object
+      required:
+        - at
+        - kind
+        - stepId
+      properties:
+        at:
+          type: string
+          format: date-time
+        kind:
+          type: string
+          example: STEP_COMPLETED
+        stepId:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    NormalizedStep:
+      oneOf:
+        - $ref: "#/components/schemas/ExecutableProcessStep"
+        - $ref: "#/components/schemas/RouteSwitchStep"
+        - $ref: "#/components/schemas/EffectStep"
+        - $ref: "#/components/schemas/WaitStep"
+        - $ref: "#/components/schemas/TerminalStep"
+      discriminator:
+        propertyName: type
+
+    BaseStep:
+      type: object
+      required:
+        - id
+        - type
+        - subtype
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        subtype:
+          type: string
+
+    ExecutableProcessStep:
+      allOf:
+        - $ref: "#/components/schemas/BaseStep"
+        - type: object
+          required:
+            - artefactId
+            - input
+          properties:
+            type:
+              type: string
+              enum: [PROCESS]
+            subtype:
+              type: string
+              enum: [RULES, MAPPINGS, DECISIONS]
+            artefactId:
+              type: string
+            input:
+              type: object
+              additionalProperties: true
+
+    RouteSwitchStep:
+      allOf:
+        - $ref: "#/components/schemas/BaseStep"
+        - type: object
+          required:
+            - selectedNextStepId
+          properties:
+            type:
+              type: string
+              enum: [PROCESS]
+            subtype:
+              type: string
+              enum: [ROUTE, SWITCH]
+            selectedNextStepId:
+              type: string
+              description: |
+                Observability field only.
+
+                Host must not use this field for routing decisions.
+                Routing semantics are fully owned by flows and already resolved by Processor.
+
+    EffectStep:
+      allOf:
+        - $ref: "#/components/schemas/BaseStep"
+        - type: object
+          required:
+            - operationId
+            - input
+          properties:
+            type:
+              type: string
+              enum: [EFFECT]
+            subtype:
+              type: string
+              enum: [COMMAND, CALL]
+            operationId:
+              type: string
+            input:
+              type: object
+              additionalProperties: true
+
+    WaitStep:
+      allOf:
+        - $ref: "#/components/schemas/BaseStep"
+        - type: object
+          required:
+            - sourceStepId
+          properties:
+            type:
+              type: string
+              enum: [WAIT]
+            subtype:
+              type: string
+              enum: [MESSAGE]
+            sourceStepId:
+              type: string
+            requestId:
+              type: string
+              description: |
+                Optional external correlation identifier materialized by `plan(...)`
+                when available.
+
+                On future stages Host must use `requestId` from normalized WAIT step,
+                not from `context.effects`.
+
+    TerminalStep:
+      allOf:
+        - $ref: "#/components/schemas/BaseStep"
+        - type: object
+          required:
+            - result
+          properties:
+            type:
+              type: string
+              enum: [TERMINAL]
+            subtype:
+              type: string
+              enum: [COMPLETE, FAIL]
+            result:
+              type: object
+              required:
+                - status
+                - outcome
+              properties:
+                status:
+                  type: string
+                  enum: [COMPLETE, FAIL]
+                outcome:
+                  type: string
+              additionalProperties: true
+
+    ErrorResponse:
+      type: object
+      description: Actual error payload returned by current Processor service
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Runtime methods cannot be called on terminal process
+        details:
+          type: object
+          nullable: true
+          additionalProperties: true

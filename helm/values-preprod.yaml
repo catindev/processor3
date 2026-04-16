@@ -1,0 +1,38 @@
+image:
+  repository: harbor.online.tkbbank.ru/tkbpay/n-nominal-beneficaries
+serviceAccount:
+  name: test-adapters
+replicaCount: 1
+ingress:
+  enabled: true
+  hosts: 
+    - beneficiary-processor.preprod.transcapital.com
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+ports:
+  - containerPort: 3000
+service:
+  name: beneficiary-processor
+  port: 3000
+  targetPort: 3000
+
+livenessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 5
+  httpGet:
+    path: /health
+    port: 3000
+readinessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 5
+  httpGet:
+    path: /health
+    port: 3000
+
+extraEnvs:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "preprod"
+

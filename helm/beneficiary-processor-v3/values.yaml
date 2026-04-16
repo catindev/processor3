@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: harbor.online.tkbbank.ru/tkbpay/beneficiary-processor-v3
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+containerPort: 3000
+
+resources: {}
+
+env:
+  PORT: "3000"
+  PROCESSOR_DEFAULT_FLOW_ID: beneficiary.registration.v3
+  PROCESSOR_DEFAULT_FLOW_VERSION: "1.0.0"
+  PROCESSOR_TRACE_MODE: basic
+
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 15
+  periodSeconds: 10
+
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 5
+  periodSeconds: 10

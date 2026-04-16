@@ -1,0 +1,6 @@
+apiVersion: v2
+name: beneficiary-processor-v3
+description: Helm chart for beneficiary-processor-v3 Node.js service
+type: application
+version: 0.1.0
+appVersion: "3.0.0"

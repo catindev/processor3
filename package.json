@@ -8,7 +8,9 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "npm run build:ui && node --test tests/*.test.js",
+    "test": "node --test tests/*.test.js",
+    "ci:test": "node --test tests/*.test.js",
+    "ci:smoke": "node scripts/smoke-v3.mjs",
     "smoke": "node scripts/smoke-v3.mjs",
     "build:ui": "vite build --config ui/vite.config.mjs"
   },
@@ -17,15 +19,15 @@
     "@processengine/mappings": "^2.0.1",
     "@processengine/rules": "^2.0.1",
     "@processengine/semantics": "^1.0.0",
-    "elkjs": "^0.11.1",
     "express": "^4.21.2",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "elkjs": "^0.11.1",
     "html-to-image": "^1.11.13",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "reactflow": "^11.11.4",
-    "swagger-ui-express": "^5.0.1"
-  },
-  "devDependencies": {
     "vite": "^5.4.21"
   }
 }

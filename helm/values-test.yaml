@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  repository: harbor.online.tkbbank.ru/tkbpay/processor3
+  tag: latest
+
+service:
+  port: 3000
+
+env:
+  SPRING_PROFILES_ACTIVE: test

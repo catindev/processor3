@@ -1,0 +1,7 @@
+replicaCount: 2
+
+env:
+  PORT: "3000"
+  PROCESSOR_DEFAULT_FLOW_ID: beneficiary.registration.v3
+  PROCESSOR_DEFAULT_FLOW_VERSION: "1.0.0"
+  PROCESSOR_TRACE_MODE: basic
