@@ -22,7 +22,5 @@
     "errors": {
       "from": "sources.validation.merchantErrorList"
     }
-  },
-  "name": "Финальный результат отказа по ошибкам данных",
-  "description": "Собирает terminalResult для отклонения заявки из-за ошибок данных."
+  }
 }

@@ -5,7 +5,7 @@
       "type": "decision-rule",
       "description": "ABS lookup returned NOT_FOUND",
       "when": {
-        "result.status": "NOT_FOUND"
+        "error.type": "NOT_FOUND"
       },
       "then": {
         "decision": "NOT_FOUND",
@@ -39,7 +39,5 @@
         "reason": "DEFAULT_TECHNICAL_ERROR"
       }
     }
-  ],
-  "name": "Decision-артефакты подпроцесса ABS",
-  "description": "Набор решений для подпроцесса поиска, создания и привязки клиента в ABS."
+  ]
 }
