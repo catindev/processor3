@@ -26,6 +26,7 @@
 ```bash
 cd processor3
 npm install
+npm run build:ui
 PROCESSOR_DEFAULT_FLOW_ID=beneficiary.registration.v3 \
 PROCESSOR_DEFAULT_FLOW_VERSION=1.0.0 \
 PORT=3000 \
@@ -52,6 +53,8 @@ open http://localhost:3000/docs
 ```bash
 npm test
 ```
+
+Команда сначала пересобирает React UI для `/flows`, затем запускает тесты runtime и служебного flow API.
 
 ## Smoke-проверка артефактов без HTTP
 

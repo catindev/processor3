@@ -1,7 +1,16 @@
 {
   "mappingId": "mappings.fl_resident.address_check_result",
-  "sources": { "addressCheck": "object" },
+  "sources": {
+    "addressCheck": "object"
+  },
   "output": {
-    "valid": { "equals": ["sources.addressCheck.address.valid", true] }
-  }
+    "valid": {
+      "equals": [
+        "sources.addressCheck.address.valid",
+        true
+      ]
+    }
+  },
+  "name": "Факты проверки адреса",
+  "description": "Нормализует внешний результат проверки адреса в факты процесса."
 }

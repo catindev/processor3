@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { prepareProcessProject } from '../src/project.js';
 import { createProcessor } from '../src/processor.js';
+import { buildFlowGraphDocument } from '../src/flow-graph.js';
 
 function testConfig(overrides = {}) {
   return {
@@ -148,6 +149,100 @@ test('prepareProcessProject loads version-aware runtimes and subflow target', ()
   assert.equal(main.flowInfo.id, 'beneficiary.registration.v3');
   assert.equal(sub.flowInfo.id, 'abs.ensure_fl_resident_beneficiary');
   assert.ok(project.listFlows().some((flow) => flow.flowId === 'abs.ensure_fl_resident_beneficiary' && flow.flowVersion === '1.0.0'));
+});
+
+test('presentation graph collapses effect-wait into one interaction node and keeps grouped continuation', async () => {
+  const project = prepareProcessProject(testConfig());
+  const sub = project.getRuntime('abs.ensure_fl_resident_beneficiary', '1.0.0');
+  const doc = await buildFlowGraphDocument(sub.flowSource);
+
+  const chooseNodes = doc.nodes.filter((node) => node.sourceStepId === 'choose_find_client_scenario');
+  assert.equal(chooseNodes.length, 1);
+
+  const sendFindNode = doc.nodes.find((node) => node.sourceStepId === 'send_find_client');
+  assert.ok(sendFindNode);
+  assert.equal(sendFindNode.data.kind, 'WAIT');
+  assert.equal(sendFindNode.data.type, 'EFFECT');
+  assert.equal(sendFindNode.data.interaction.waitStepId, 'wait_find_client');
+  assert.equal(sendFindNode.data.hiddenFailureCount, 3);
+  assert.deepEqual(sendFindNode.data.hiddenFailures.map((failure) => failure.originTitle), [
+    'Ошибка вызова операции',
+    'Ошибка ожидания результата',
+    'Таймаут ожидания результата'
+  ]);
+  assert.deepEqual(sendFindNode.data.hiddenFailures.map((failure) => failure.stepId), [
+    'finish_fail_find_client_call_error',
+    'finish_fail_find_client_wait_error',
+    'finish_fail_find_client_wait_timeout'
+  ]);
+  assert.equal(doc.nodes.filter((node) => node.sourceStepId === 'wait_find_client').length, 0);
+
+  const sendFindEdges = doc.edges.filter((edge) => edge.source === sendFindNode.id);
+  assert.equal(sendFindEdges.length, 1);
+  assert.deepEqual(sendFindEdges.map((edge) => edge.label), ['success']);
+
+  const switchNode = doc.nodes.find((node) => node.sourceStepId === 'switch_find_client_scenario');
+  assert.ok(switchNode);
+  const switchOutgoing = doc.edges.filter((edge) => edge.source === switchNode.id).map((edge) => edge.label);
+  assert.deepEqual(switchOutgoing, ['FOUND', 'NOT_FOUND']);
+
+  assert.ok(doc.nodes.every((node) => node.position.x >= 0 && node.position.y >= 0));
+});
+
+test('presentation graph hides terminal failures behind badges when normal continuation exists', async () => {
+  const project = prepareProcessProject(testConfig());
+  const main = project.getRuntime('beneficiary.registration.v3', '1.0.0');
+  const doc = await buildFlowGraphDocument(main.flowSource);
+
+  const addressNode = doc.nodes.find((node) => node.sourceStepId === 'validate_registration_address');
+  assert.ok(addressNode);
+  assert.equal(addressNode.data.kind, 'WAIT');
+  assert.equal(addressNode.data.type, 'EFFECT');
+  assert.equal(addressNode.data.interaction.waitStepId, 'wait_validate_registration_address');
+  assert.equal(addressNode.data.hiddenFailureCount, 3);
+  assert.deepEqual(addressNode.data.hiddenFailures.map((failure) => failure.originTitle), [
+    'Ошибка вызова операции',
+    'Ошибка ожидания результата',
+    'Таймаут ожидания результата'
+  ]);
+  assert.deepEqual(addressNode.data.hiddenFailures.map((failure) => failure.stepId), [
+    'finish_fail_address_call',
+    'finish_fail_address_wait_error',
+    'finish_fail_address_wait_timeout'
+  ]);
+  assert.equal(doc.nodes.filter((node) => node.sourceStepId === 'wait_validate_registration_address').length, 0);
+
+  const outgoing = doc.edges
+    .filter((edge) => edge.source === addressNode.id)
+    .map((edge) => ({ edge, target: doc.nodes.find((node) => node.id === edge.target) }))
+    .filter((item) => item.target);
+
+  const success = outgoing.find((item) => item.edge.label === 'success');
+
+  assert.ok(success);
+  assert.ok(success.target.position.x > addressNode.position.x);
+  assert.equal(success.target.position.y, addressNode.position.y);
+  assert.equal(outgoing.length, 1);
+
+  const addressRouteNode = doc.nodes.find((node) => node.sourceStepId === 'route_after_address_validation');
+  assert.ok(addressRouteNode);
+  assert.equal(addressRouteNode.data.hiddenFailureCount, 1);
+  assert.deepEqual(addressRouteNode.data.hiddenFailures.map((failure) => ({
+    originTitle: failure.originTitle,
+    stepId: failure.stepId
+  })), [
+    {
+      originTitle: 'Ветка по умолчанию',
+      stepId: 'finish_reject_address'
+    }
+  ]);
+
+  const validationRejectNode = doc.nodes.find((node) => node.sourceStepId === 'build_validation_reject_terminal_result');
+  assert.ok(validationRejectNode);
+  const validationRejectEdge = doc.edges.find((edge) => edge.source === validationRejectNode.id);
+  assert.ok(validationRejectEdge);
+  const validationRejectTarget = doc.nodes.find((node) => node.id === validationRejectEdge.target);
+  assert.equal(validationRejectTarget?.data.kind, 'TERMINAL_FAIL');
 });
 
 test('processor uses wrapped responses and separates /route from /run', () => {

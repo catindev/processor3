@@ -6,5 +6,7 @@
   "rulesFile": "rules.snapshot.v3.json",
   "mappingFiles": {},
   "decisionsFile": "decision.v3.json",
-  "operatorPackId": "beneficiary-defaults"
+  "operatorPackId": "beneficiary-defaults",
+  "name": "Набор артефактов работы с ABS",
+  "description": "Набор артефактов подпроцесса обеспечения и привязки бенефициара в ABS."
 }

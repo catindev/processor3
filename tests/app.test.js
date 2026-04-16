@@ -225,3 +225,38 @@ test('http facade returns merchant-friendly validation reject result', async (t)
   assert.equal(state.result.errors[0].message, 'Дата выдачи документа не должна быть больше текущей даты');
   assert.equal(state.result.errors[0].field, 'beneficiary.idDoc.issueDate');
 });
+
+
+test('flow API returns html app shell and graph data', async (t) => {
+  const server = await startServer(createReadyRuntime());
+  t.after(() => server.close());
+
+  const flowsPage = await fetch(`${server.baseUrl}/flows`);
+  assert.equal(flowsPage.status, 200);
+  assert.match(flowsPage.headers.get('content-type') || '', /text\/html/);
+  const flowsHtml = await flowsPage.text();
+  assert.match(flowsHtml, /<div id="root"><\/div>/);
+  assert.match(flowsHtml, /Processor Flows/);
+  assert.match(flowsHtml, /\/assets\/graph-.*\.js/);
+
+  const flowPage = await fetch(`${server.baseUrl}/flows/beneficiary.registration.v3?version=1.0.0`);
+  assert.equal(flowPage.status, 200);
+  assert.match(flowPage.headers.get('content-type') || '', /text\/html/);
+  const flowHtml = await flowPage.text();
+  assert.match(flowHtml, /<div id="root"><\/div>/);
+
+  const listApi = await fetch(`${server.baseUrl}/api/flows`);
+  assert.equal(listApi.status, 200);
+  const listPayload = await listApi.json();
+  assert.ok(Array.isArray(listPayload.flows));
+  assert.ok(listPayload.flows.some((flow) => flow.flowId === 'beneficiary.registration.v3' && flow.name.includes('Регистрация бенефициара')));
+
+  const graphApi = await fetch(`${server.baseUrl}/api/flows/beneficiary.registration.v3?version=1.0.0`);
+  assert.equal(graphApi.status, 200);
+  const graphPayload = await graphApi.json();
+  assert.equal(graphPayload.flowId, 'beneficiary.registration.v3');
+  assert.match(graphPayload.name, /Регистрация бенефициара/);
+  assert.ok(Array.isArray(graphPayload.nodes));
+  assert.ok(Array.isArray(graphPayload.edges));
+  assert.ok(graphPayload.nodes.some((node) => node.label === 'Проверка заявки ФЛ-резидента'));
+});

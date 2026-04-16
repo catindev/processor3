@@ -449,11 +449,11 @@ export function createOpenApiDocument() {
             requestId: { type: 'string' },
             result: {
               nullable: true,
-              description: 'JSON-safe external result payload.'
+              description: 'JSON-safe business result payload. Domain-negative outcomes such as NOT_FOUND or ADDRESS_INVALID must be transferred here, not in error.'
             },
             error: {
               nullable: true,
-              description: 'JSON-safe external error payload.'
+              description: 'JSON-safe infrastructure error payload. Use only for call/wait transport failures and runtime faults of external interaction.'
             },
             errorCode: { type: 'string', nullable: true }
           },

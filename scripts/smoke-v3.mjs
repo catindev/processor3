@@ -55,7 +55,7 @@ function successFind(req, found = false) {
   if (found) {
     return { requestId: req, result: { status: 'SUCCESS', payload: { client: { id: 'ABS-CLIENT-001', cardLastModifiedAt: '2026-04-12T00:00:00Z' } } } };
   }
-  return { requestId: req, error: { status: 'ERROR', type: 'NOT_FOUND', code: 'ABS-NOT-FOUND-001', message: 'Клиент не найден' }, errorCode: 'ABS-NOT-FOUND-001' };
+  return { requestId: req, result: { status: 'NOT_FOUND', payload: { code: 'ABS-NOT-FOUND-001', message: 'Клиент не найден' } } };
 }
 function successCreate(req) {
   return { requestId: req, result: { status: 'SUCCESS', payload: { client: { id: 'ABS-CLIENT-NEW-001' } } } };
