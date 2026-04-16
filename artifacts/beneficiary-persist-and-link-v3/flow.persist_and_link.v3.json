@@ -20,7 +20,7 @@
       "subtype": "MESSAGE",
       "sourceStepId": "send_find_client",
       "nextStepId": "choose_find_client_scenario",
-      "onErrorStepId": "finish_fail_find_client_wait_error",
+      "onErrorStepId": "choose_find_client_scenario",
       "onTimeoutStepId": "finish_fail_find_client_wait_timeout",
       "name": "Ожидание результата поиска клиента",
       "description": "Ожидает внешний результат поиска клиента в ABS."
@@ -137,19 +137,6 @@
       },
       "name": "Таймаут ожидания поиска клиента",
       "description": "Завершает подпроцесс технической ошибкой, если поиск клиента в ABS не вернул результат вовремя."
-    },
-    "finish_fail_find_client_wait_error": {
-      "id": "finish_fail_find_client_wait_error",
-      "type": "TERMINAL",
-      "subtype": "FAIL",
-      "result": {
-        "status": "FAIL",
-        "outcome": "TECHNICAL_FAILURE",
-        "reasonCode": "FIND_CLIENT_WAIT_ERROR",
-        "errors": []
-      },
-      "name": "Техническая ошибка ожидания поиска клиента",
-      "description": "Завершает подпроцесс технической ошибкой, если ожидание результата поиска клиента завершилось ошибкой."
     },
     "finish_fail_find_client_decision_error": {
       "id": "finish_fail_find_client_decision_error",

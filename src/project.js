@@ -226,7 +226,13 @@ export function validateProcessProject(config) {
   const runtimes = [];
   for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    runtimes.push(loadArtifactSet(path.join(rootDir, entry.name), config));
+    const setDir = path.join(rootDir, entry.name);
+    const manifestPath = path.join(setDir, config.artifactSetFile);
+    // Skip directories that do not contain the expected manifest file.
+    // This prevents accidental directories (e.g. .git, tmp, __MACOSX) from
+    // failing the entire bootstrap.
+    if (!fs.existsSync(manifestPath)) continue;
+    runtimes.push(loadArtifactSet(setDir, config));
   }
 
   if (!runtimes.length) {

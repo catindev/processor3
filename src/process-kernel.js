@@ -21,9 +21,19 @@ function ensureObject(value, message, details = {}) {
   }
 }
 
+function isSemanticsRuntimeError(error) {
+  if (!error || typeof error !== 'object') return false;
+  // XRuntimeError from @processengine/semantics always carries a string error.code
+  // starting with FLOW_. This is more stable than matching the class name string.
+  if (typeof error.code === 'string' && error.code.startsWith('FLOW_')) return true;
+  // Fallback: constructor name check for forward-compatibility
+  if (error.constructor?.name === 'XRuntimeError') return true;
+  return false;
+}
+
 function mapRuntimeError(error) {
   if (error instanceof HttpError) return error;
-  if (error && typeof error === 'object' && 'name' in error && String(error.name).includes('RuntimeError')) {
+  if (isSemanticsRuntimeError(error)) {
     return new HttpError(409, 'runtime_error', 'WORKFLOW_STATE_INVALID', error.message, {
       semanticsErrorName: error.name,
       semanticsErrorCode: error.code ?? null,
@@ -74,15 +84,13 @@ function normalizeRulesInput(stepInput) {
 
 export function validateStateShape(state) {
   ensureObject(state, 'Request body must contain a valid ProcessState in the state field.');
-  for (const key of ['processId', 'id', 'version', 'status', 'traceMode', 'currentStepId', 'currentStepType', 'currentStepSubtype', 'context', 'history', 'result', 'meta']) {
+  // traceMode is excluded from required-field check: absent or unknown values
+  // are normalised to 'off' rather than rejected, so external callers do not
+  // have to track the enum. All other fields are load-bearing and must be present.
+  for (const key of ['processId', 'id', 'version', 'status', 'currentStepId', 'currentStepType', 'currentStepSubtype', 'context', 'history', 'result', 'meta']) {
     if (!(key in state)) {
       throw new HttpError(400, 'request_error', 'REQUEST_INVALID', `ProcessState is missing required field: ${key}`, { field: key });
     }
-  }
-  if (!['off', 'basic', 'verbose'].includes(state.traceMode)) {
-    throw new HttpError(400, 'request_error', 'REQUEST_INVALID', 'ProcessState.traceMode must be one of: off, basic, verbose.', {
-      field: 'traceMode'
-    });
   }
 }
 

@@ -71,8 +71,12 @@ export function createProcessor(runtime) {
 
     async describeFlow(flowId, flowVersion) {
       const project = assertRuntimeReady();
-      const flow = project.getFlowSource(flowId, flowVersion);
-      return await buildFlowGraphDocument(flow);
+      const runtime = project.getRuntime(flowId, flowVersion);
+      const artifactContext = {
+        getMappingSource: (id) => runtime.mappings.get(id)?.source ?? null,
+        getDecisionArtifacts: () => runtime.decisionsSource?.artifacts ?? [],
+      };
+      return await buildFlowGraphDocument(runtime.flowSource, artifactContext);
     },
 
     init(body) {
