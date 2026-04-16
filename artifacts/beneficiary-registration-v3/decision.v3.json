@@ -51,45 +51,6 @@
         "decision": "CONTINUE",
         "reason": "VALIDATION_OK"
       }
-    },
-    {
-      "id": "find_client.not_found",
-      "type": "decision-rule",
-      "description": "ABS lookup returned NOT_FOUND",
-      "when": {
-        "result.status": "NOT_FOUND"
-      },
-      "then": {
-        "decision": "NOT_FOUND",
-        "reason": "ABS_NOT_FOUND"
-      }
-    },
-    {
-      "id": "find_client.found",
-      "type": "decision-rule",
-      "description": "ABS lookup returned SUCCESS",
-      "when": {
-        "result.status": "SUCCESS"
-      },
-      "then": {
-        "decision": "FOUND",
-        "reason": "ABS_FOUND"
-      }
-    },
-    {
-      "id": "decisions.fl_resident.find_client_scenario",
-      "type": "decision-set",
-      "description": "Route after FIND_CLIENT",
-      "version": "1.0.0",
-      "mode": "first_match_wins",
-      "rules": [
-        "find_client.not_found",
-        "find_client.found"
-      ],
-      "defaultDecision": {
-        "decision": "TECHNICAL_ERROR",
-        "reason": "DEFAULT_TECHNICAL_ERROR"
-      }
     }
   ],
   "name": "Decision-артефакты регистрации бенефициара",
