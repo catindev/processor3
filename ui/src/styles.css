@@ -491,3 +491,212 @@ pre {
   .canvasWrap { min-height: 520px; height: 520px; }
   .toolbar { flex-wrap: wrap; }
 }
+
+/* ── routing inset (inside CONTROL nodes) ─────────────────────── */
+.routingInset {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.routingSource {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+  opacity: .75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.routingCases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.casePill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+}
+.casePill.ok      { background: #DCFCE7; color: #14532D; border: 1px solid #86EFAC; }
+.casePill.fail    { background: #FFE4E6; color: #881337; border: 1px solid #FECDD3; }
+.casePill.warn    { background: #FEF9C3; color: #713F12; border: 1px solid #FDE047; }
+.casePill.default { background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; }
+.casePill.case    { background: #EFF6FF; color: #1E3A8A; border: 1px solid #BFDBFE; }
+
+/* ── sidebar generic ─────────────────────────────────────────── */
+.sectionHead {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  margin-bottom: 8px;
+}
+.sectionMeta {
+  font-size: 11.5px;
+  color: #6B7280;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.codeSpan {
+  font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+  font-size: 11px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: #1E293B;
+  word-break: break-all;
+}
+.codeSpan.flex1 { flex: 1; min-width: 0; }
+.modePill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #EFF6FF;
+  color: #1E3A8A;
+  border: 1px solid #BFDBFE;
+  font-family: monospace;
+}
+
+/* ── routing table (sidebar) ─────────────────────────────────── */
+.routingTable { display: grid; gap: 5px; margin-top: 4px; }
+.routingTableRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  min-width: 0;
+}
+.routingTableArrow { color: #94A3B8; flex-shrink: 0; }
+.routingTableTarget {
+  color: #374151;
+  font-size: 12px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* ── contract section ────────────────────────────────────────── */
+.contractFlow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.contractDir {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  font-family: monospace;
+}
+.contractDir.in  { background: #EFF6FF; color: #1E3A8A; border: 1px solid #BFDBFE; }
+.contractDir.out { background: #F0FDF4; color: #14532D; border: 1px solid #BBF7D0; }
+
+/* ── mapping table ───────────────────────────────────────────── */
+.mappingTable {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}
+.mappingRow {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: start;
+  gap: 6px;
+  min-width: 0;
+}
+.mappingField {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #1E293B;
+  white-space: nowrap;
+}
+.mappingArrow { color: #94A3B8; font-size: 11px; padding-top: 1px; }
+.mappingExpr  { min-width: 0; font-size: 11px; }
+
+.exprFrom, .exprOther {
+  font-family: monospace; font-size: 10.5px; color: #4338CA;
+  background: #EEF2FF; border-radius: 4px; padding: 1px 6px;
+}
+.exprEquals { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; }
+.exprEquals code { font-family: monospace; color: #4338CA; }
+.exprVal { background: #FEF9C3; border-radius: 4px; padding: 1px 5px; color: #713F12; }
+.exprOp { color: #9CA3AF; font-size: 10px; font-family: monospace; padding: 0 1px; }
+
+.exprMapValue { min-width: 0; }
+.exprMapHead { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+.exprMapHead code { font-family: monospace; font-size: 10.5px; color: #4338CA; }
+.exprMapEntries { display: grid; gap: 2px; padding-left: 10px; }
+.exprMapEntry {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; line-height: 1.4; font-family: monospace;
+}
+.exprMapFrom  { color: #6B7280; min-width: 60px; }
+.exprMapTo    { color: #0F172A; font-weight: 600; }
+.exprFallback { color: #6B7280; font-style: italic; }
+
+/* ── decisions table ─────────────────────────────────────────── */
+.decisionTable { display: grid; gap: 5px; margin-top: 4px; }
+.decisionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  min-width: 0;
+}
+.decisionRow.default { background: #FAFAF9; border-color: #E5E7EB; }
+.decisionIndex {
+  font-size: 10px; font-weight: 800; color: #9CA3AF; min-width: 14px;
+  padding-top: 1px; font-family: monospace; flex-shrink: 0;
+}
+.decisionBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.decisionWhen { font-size: 11px; color: #374151; font-family: monospace; word-break: break-word; }
+.decisionThen { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.decisionOutcome {
+  font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  background: #EFF6FF; color: #1E3A8A; border: 1px solid #BFDBFE;
+  font-family: monospace;
+}
+.decisionReason { font-size: 10px; color: #9CA3AF; font-family: monospace; }
+
+/* ── terminal section ────────────────────────────────────────── */
+.terminalOutcome {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.outcomePill {
+  font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px;
+  font-family: monospace;
+}
+.outcomePill.ok   { background: #F0FDF4; color: #14532D; border: 1px solid #BBF7D0; }
+.outcomePill.fail { background: #FFF1F2; color: #881337; border: 1px solid #FECDD3; }
+.merchantMessage {
+  font-size: 13px; color: #4B5563; line-height: 1.5; font-style: italic;
+  padding: 8px 12px; background: #FAFAF9; border-left: 3px solid #E5E7EB;
+  border-radius: 0 6px 6px 0;
+}
+
+/* ── propLink ─────────────────────────────────────────────────── */
+.propLink { color: #4F46E5; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
