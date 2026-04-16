@@ -2,7 +2,7 @@
   "version": "1",
   "createdAt": "2026-03-30T12:39:44.213Z",
   "createdBy": "vladimirtitskiy",
-  "description": "Пакет правил проверок заявок на регистрацию бенефициаров номинальных счетов. В этом наборе пока чтто есть только стартовый пакет правил для профиля FL_RESIDENT. Пакет рассчитан как новая база для дальнейшего развития остальных профилей",
+  "description": "Собранный snapshot правил для подпроцесса обеспечения и привязки бенефициара.",
   "manifest": {
     "project": {
       "id": "nominal-beneficiaries-rules",
@@ -3589,5 +3589,6 @@
       "field": "beneficiary.tax.usTaxResident",
       "value": true
     }
-  ]
+  ],
+  "name": "Snapshot правил подпроцесса ABS"
 }

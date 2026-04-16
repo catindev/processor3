@@ -10,5 +10,7 @@
   "nodeOperatorPacks": [
     "./operators/node"
   ],
-  "note": "patched for FIAS structure validation in RU addresses"
+  "note": "patched for FIAS structure validation in RU addresses",
+  "name": "Информация о сборке правил регистрации",
+  "description": "Технические сведения о сборке snapshot правил для процесса регистрации бенефициара."
 }

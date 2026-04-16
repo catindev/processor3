@@ -1,10 +1,14 @@
 {
   "id": "beneficiary.registration.v3",
+  "name": "Регистрация бенефициара (только ФЛ-резидента)",
+  "description": "Проверяет заявку, классифицирует результат проверки, подтверждает адрес и при успешной валидации запускает подпроцесс работы с ABS",
   "version": "1.0.0",
   "entryStepId": "route_by_supported_scenario",
   "steps": {
     "route_by_supported_scenario": {
       "id": "route_by_supported_scenario",
+      "name": "Выбор поддерживаемого сценария",
+      "description": "Определяет, поддерживается ли тип бенефициара в текущей версии процесса",
       "type": "CONTROL",
       "subtype": "ROUTE",
       "factRef": "$.context.input.application.beneficiary.type",
@@ -15,6 +19,8 @@
     },
     "validate_fl_resident_request": {
       "id": "validate_fl_resident_request",
+      "name": "Проверка заявки ФЛ-резидента",
+      "description": "Проверяет входную заявку по регуляторным и бизнес-правилам",
       "type": "PROCESS",
       "subtype": "RULES",
       "artefactId": "entrypoints.fl_resident.full_validation",
@@ -35,6 +41,8 @@
     },
     "derive_validation_facts": {
       "id": "derive_validation_facts",
+      "name": "Сбор фактов по результатам проверки",
+      "description": "Преобразует результат проверок в устойчивые признаки для принятия решения",
       "type": "PROCESS",
       "subtype": "MAPPINGS",
       "artefactId": "mappings.fl_resident.validation_facts",
@@ -50,6 +58,8 @@
     },
     "choose_validation_outcome": {
       "id": "choose_validation_outcome",
+      "name": "Выбор исхода после проверки",
+      "description": "Определяет, отклоняется ли заявка или может продолжать обработку",
       "type": "PROCESS",
       "subtype": "DECISIONS",
       "artefactId": "decisions.fl_resident.validation_outcome",
@@ -65,6 +75,8 @@
     },
     "switch_validation_outcome": {
       "id": "switch_validation_outcome",
+      "name": "Маршрутизация по исходу проверки",
+      "description": "Переводит процесс в нужную ветку по результату decision",
       "type": "CONTROL",
       "subtype": "SWITCH",
       "decisionSetId": "validation",
@@ -73,10 +85,12 @@
         "REJECT_VALIDATION": "build_validation_reject_terminal_result",
         "CONTINUE": "validate_registration_address"
       },
-      "defaultNextStepId": "finish_fail_technical"
+      "defaultNextStepId": "finish_fail_validation_outcome_default"
     },
     "build_validation_reject_terminal_result": {
       "id": "build_validation_reject_terminal_result",
+      "name": "Сбор финального результата отказа по ошибкам",
+      "description": "Подготавливает итоговый business-result для отклонения из-за ошибок в данных",
       "type": "PROCESS",
       "subtype": "MAPPINGS",
       "artefactId": "mappings.fl_resident.validation_reject_terminal_result",
@@ -92,24 +106,30 @@
     },
     "validate_registration_address": {
       "id": "validate_registration_address",
+      "name": "Проверка адреса регистрации",
+      "description": "Запускает внешнюю проверку адреса регистрации бенефициара",
       "type": "EFFECT",
       "subtype": "CALL",
       "operationId": "VALIDATE_ADDRESS",
       "inputRef": "$.context.input.application.beneficiary.address.registration",
       "nextStepId": "wait_validate_registration_address",
-      "onErrorStepId": "finish_fail_technical"
+      "onErrorStepId": "finish_fail_address_call"
     },
     "wait_validate_registration_address": {
       "id": "wait_validate_registration_address",
+      "name": "Ожидание результата проверки адреса",
+      "description": "Ожидает внешний результат проверки адреса регистрации",
       "type": "WAIT",
       "subtype": "MESSAGE",
       "sourceStepId": "validate_registration_address",
       "nextStepId": "extract_address_validation_result",
-      "onErrorStepId": "finish_reject_address",
-      "onTimeoutStepId": "finish_fail_technical"
+      "onErrorStepId": "finish_fail_address_wait_error",
+      "onTimeoutStepId": "finish_fail_address_wait_timeout"
     },
     "extract_address_validation_result": {
       "id": "extract_address_validation_result",
+      "name": "Извлечение результата проверки адреса",
+      "description": "Нормализует результат внешней проверки адреса в факты процесса",
       "type": "PROCESS",
       "subtype": "MAPPINGS",
       "artefactId": "mappings.fl_resident.address_check_result",
@@ -125,6 +145,8 @@
     },
     "route_after_address_validation": {
       "id": "route_after_address_validation",
+      "name": "Маршрутизация после проверки адреса",
+      "description": "Решает, можно ли продолжать обработку после проверки адреса",
       "type": "CONTROL",
       "subtype": "ROUTE",
       "factRef": "$.context.facts.address_check.valid",
@@ -135,6 +157,8 @@
     },
     "run_abs_ensure_fl_resident_beneficiary": {
       "id": "run_abs_ensure_fl_resident_beneficiary",
+      "name": "Запуск подпроцесса работы с ABS",
+      "description": "Запускает подпроцесс, который обеспечивает наличие и привязку бенефициара в ABS",
       "type": "EFFECT",
       "subtype": "SUBFLOW",
       "operationId": "ABS_ENSURE_FL_RESIDENT_BENEFICIARY",
@@ -142,19 +166,23 @@
       "flowVersion": "1.0.0",
       "inputRef": "$.context.input.application",
       "nextStepId": "wait_abs_ensure_fl_resident_beneficiary",
-      "onErrorStepId": "finish_fail_technical"
+      "onErrorStepId": "finish_fail_abs_subflow_call"
     },
     "wait_abs_ensure_fl_resident_beneficiary": {
       "id": "wait_abs_ensure_fl_resident_beneficiary",
+      "name": "Ожидание завершения подпроцесса ABS",
+      "description": "Ожидает завершение подпроцесса работы с ABS",
       "type": "WAIT",
       "subtype": "MESSAGE",
       "sourceStepId": "run_abs_ensure_fl_resident_beneficiary",
       "nextStepId": "finish_success",
-      "onErrorStepId": "finish_fail_technical",
-      "onTimeoutStepId": "finish_fail_technical"
+      "onErrorStepId": "finish_fail_abs_subflow_wait_error",
+      "onTimeoutStepId": "finish_fail_abs_subflow_wait_timeout"
     },
     "finish_success": {
       "id": "finish_success",
+      "name": "Успешное завершение",
+      "description": "Завершает процесс успешной обработкой заявки",
       "type": "TERMINAL",
       "subtype": "COMPLETE",
       "result": {
@@ -167,6 +195,8 @@
     },
     "finish_fail_poc_scenario_not_supported": {
       "id": "finish_fail_poc_scenario_not_supported",
+      "name": "Неподдерживаемый сценарий",
+      "description": "Завершает процесс отказом, если сценарий ещё не поддержан в текущем PoC",
       "type": "TERMINAL",
       "subtype": "FAIL",
       "result": {
@@ -179,6 +209,8 @@
     },
     "finish_reject_compliance": {
       "id": "finish_reject_compliance",
+      "name": "Отклонение по регуляторной причине",
+      "description": "Завершает процесс отказом по регуляторной причине",
       "type": "TERMINAL",
       "subtype": "FAIL",
       "result": {
@@ -192,6 +224,8 @@
     },
     "finish_reject_validation": {
       "id": "finish_reject_validation",
+      "name": "Отклонение из-за ошибок данных",
+      "description": "Завершает процесс отказом из-за ошибок в заявке",
       "type": "TERMINAL",
       "subtype": "FAIL",
       "result": {
@@ -205,6 +239,8 @@
     },
     "finish_reject_address": {
       "id": "finish_reject_address",
+      "name": "Отклонение из-за проверки адреса",
+      "description": "Завершает процесс отказом, если адрес не прошёл проверку",
       "type": "TERMINAL",
       "subtype": "FAIL",
       "result": {
@@ -215,15 +251,101 @@
         "errors": []
       }
     },
-    "finish_fail_technical": {
-      "id": "finish_fail_technical",
+    "finish_fail_validation_outcome_default": {
+      "id": "finish_fail_validation_outcome_default",
+      "name": "Техническая ошибка выбора исхода проверки",
+      "description": "Завершает процесс технической ошибкой, если выбор исхода после проверки вернул неподдерживаемое значение.",
       "type": "TERMINAL",
       "subtype": "FAIL",
       "result": {
         "status": "FAIL",
         "outcome": "TECHNICAL_FAILURE",
-        "reasonCode": "TECHNICAL_FAILURE",
-        "merchantMessage": "Не удалось завершить обработку заявки из-за технической ошибки",
+        "reasonCode": "VALIDATION_OUTCOME_ROUTE_ERROR",
+        "merchantMessage": "Не удалось завершить обработку заявки из-за технической ошибки выбора исхода после проверки",
+        "errors": []
+      }
+    },
+    "finish_fail_address_call": {
+      "id": "finish_fail_address_call",
+      "name": "Техническая ошибка вызова проверки адреса",
+      "description": "Завершает процесс технической ошибкой, если не удалось запустить внешнюю проверку адреса регистрации.",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "ADDRESS_CHECK_CALL_ERROR",
+        "merchantMessage": "Не удалось запустить проверку адреса из-за технической ошибки",
+        "errors": []
+      }
+    },
+    "finish_fail_address_wait_error": {
+      "id": "finish_fail_address_wait_error",
+      "name": "Техническая ошибка ожидания проверки адреса",
+      "description": "Завершает процесс технической ошибкой, если ожидание результата проверки адреса завершилось ошибкой.",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "ADDRESS_CHECK_WAIT_ERROR",
+        "merchantMessage": "Не удалось дождаться результата проверки адреса из-за технической ошибки",
+        "errors": []
+      }
+    },
+    "finish_fail_address_wait_timeout": {
+      "id": "finish_fail_address_wait_timeout",
+      "name": "Таймаут ожидания проверки адреса",
+      "description": "Завершает процесс технической ошибкой, если внешний сервис проверки адреса не вернул результат вовремя.",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "ADDRESS_CHECK_TIMEOUT",
+        "merchantMessage": "Не удалось завершить проверку адреса вовремя",
+        "errors": []
+      }
+    },
+    "finish_fail_abs_subflow_call": {
+      "id": "finish_fail_abs_subflow_call",
+      "name": "Техническая ошибка запуска подпроцесса ABS",
+      "description": "Завершает процесс технической ошибкой, если не удалось запустить подпроцесс работы с ABS.",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "ABS_SUBFLOW_CALL_ERROR",
+        "merchantMessage": "Не удалось запустить подпроцесс работы с ABS из-за технической ошибки",
+        "errors": []
+      }
+    },
+    "finish_fail_abs_subflow_wait_error": {
+      "id": "finish_fail_abs_subflow_wait_error",
+      "name": "Техническая ошибка ожидания подпроцесса ABS",
+      "description": "Завершает процесс технической ошибкой, если ожидание завершения подпроцесса ABS завершилось ошибкой.",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "ABS_SUBFLOW_WAIT_ERROR",
+        "merchantMessage": "Не удалось дождаться завершения подпроцесса ABS из-за технической ошибки",
+        "errors": []
+      }
+    },
+    "finish_fail_abs_subflow_wait_timeout": {
+      "id": "finish_fail_abs_subflow_wait_timeout",
+      "name": "Таймаут ожидания подпроцесса ABS",
+      "description": "Завершает процесс технической ошибкой, если подпроцесс ABS не завершился вовремя.",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "ABS_SUBFLOW_TIMEOUT",
+        "merchantMessage": "Не удалось дождаться завершения подпроцесса ABS вовремя",
         "errors": []
       }
     }

@@ -10,6 +10,36 @@ import { ProjectLoadError } from './errors.js';
 const require = createRequire(import.meta.url);
 const decisions = require('@processengine/decisions');
 
+function stripPresentationFieldsDeep(value) {
+  if (value == null) return value;
+  return JSON.parse(JSON.stringify(value));
+}
+
+function stripFlowPresentationFields(flowSource) {
+  if (!flowSource || typeof flowSource !== 'object' || Array.isArray(flowSource)) return flowSource;
+  const out = stripPresentationFieldsDeep(flowSource);
+  delete out.name;
+  delete out.description;
+
+  if (out.steps && typeof out.steps === 'object' && !Array.isArray(out.steps)) {
+    for (const step of Object.values(out.steps)) {
+      if (!step || typeof step !== 'object' || Array.isArray(step)) continue;
+      delete step.name;
+      delete step.description;
+    }
+  }
+
+  return out;
+}
+
+function stripTopLevelPresentationFields(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const out = { ...value };
+  delete out.name;
+  delete out.description;
+  return out;
+}
+
 function readJson(filePath) {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -82,6 +112,7 @@ function loadArtifactSet(setDir, config) {
   mustExist(decisionsPath, 'Decisions file');
 
   const flowSource = readJson(flowPath);
+  const flowRuntimeSource = stripFlowPresentationFields(flowSource);
   if (manifest.flowId && manifest.flowId !== flowSource.id) {
     throw new ProjectLoadError(`Artifact manifest flowId ${manifest.flowId} does not match flow.id ${flowSource.id}.`, [
       `Artifact manifest flowId ${manifest.flowId} does not match flow.id ${flowSource.id} in ${flowPath}`
@@ -92,7 +123,7 @@ function loadArtifactSet(setDir, config) {
     });
   }
 
-  const flowValidation = semantics.validateFlow(flowSource);
+  const flowValidation = semantics.validateFlow(flowRuntimeSource);
   if (!flowValidation.isValid) {
     throw new ProjectLoadError(`Flow validation failed for ${flowSource.id}@${flowSource.version}.`, [
       `Flow validation failed for ${flowSource.id}@${flowSource.version}: ${semantics.formatValidationIssues(flowValidation.errors)}`
@@ -103,7 +134,7 @@ function loadArtifactSet(setDir, config) {
   }
   let preparedFlow;
   try {
-    preparedFlow = semantics.prepareFlow(flowSource);
+    preparedFlow = semantics.prepareFlow(flowRuntimeSource);
   } catch (error) {
     throw new ProjectLoadError(`Flow prepare failed for ${flowSource.id}@${flowSource.version}.`, [
       `Flow prepare failed for ${flowSource.id}@${flowSource.version}: ${error?.message || 'Unknown prepare error.'}`
@@ -148,9 +179,10 @@ function loadArtifactSet(setDir, config) {
   }
 
   const decisionsSource = readJson(decisionsPath);
+  const decisionsRuntimeSource = stripTopLevelPresentationFields(decisionsSource);
   let compiledDecisions;
   try {
-    compiledDecisions = decisions.compile(decisionsSource);
+    compiledDecisions = decisions.compile(decisionsRuntimeSource);
   } catch (error) {
     throw new ProjectLoadError(`Decisions compile failed for ${flowSource.id}@${flowSource.version}.`, [
       `Decisions compile failed for ${flowSource.id}@${flowSource.version}: ${error?.message || 'Unknown decisions compile error.'}`
@@ -166,6 +198,7 @@ function loadArtifactSet(setDir, config) {
     manifest,
     flowInfo: { id: flowSource.id, version: flowSource.version },
     flowSource,
+    flowRuntimeSource,
     preparedFlow,
     rulesSource,
     preparedRules,
@@ -287,12 +320,17 @@ export function prepareProcessProject(config) {
     getRuntimeByState(state) {
       return this.getRuntime(String(state.id), String(state.version));
     },
+    getFlowSource(flowId, flowVersion = undefined) {
+      return this.getRuntime(flowId, flowVersion).flowSource;
+    },
     listFlows() {
       return [...runtimesByVersionKey.values()].map((runtime) => ({
         flowId: runtime.flowInfo.id,
         flowVersion: runtime.flowInfo.version,
         artifactSetId: runtime.manifest.artifactSetId,
-        artifactSetVersion: runtime.manifest.artifactSetVersion
+        artifactSetVersion: runtime.manifest.artifactSetVersion,
+        name: runtime.flowSource.name || runtime.flowInfo.id,
+        description: runtime.flowSource.description || ''
       }));
     }
   };

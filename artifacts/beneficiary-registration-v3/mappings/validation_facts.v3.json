@@ -1,6 +1,8 @@
 {
   "mappingId": "mappings.fl_resident.validation_facts",
-  "sources": { "validation": "object" },
+  "sources": {
+    "validation": "object"
+  },
   "output": {
     "resolutionClass": {
       "mapValue": {
@@ -53,8 +55,25 @@
     "merchantErrorList": {
       "from": "sources.validation.issues"
     },
-    "hasErrors": { "equals": ["sources.validation.status", "ERROR"] },
-    "hasWarnings": { "equals": ["sources.validation.status", "OK_WITH_WARNINGS"] },
-    "hasExceptions": { "equals": ["sources.validation.status", "EXCEPTION"] }
-  }
+    "hasErrors": {
+      "equals": [
+        "sources.validation.status",
+        "ERROR"
+      ]
+    },
+    "hasWarnings": {
+      "equals": [
+        "sources.validation.status",
+        "OK_WITH_WARNINGS"
+      ]
+    },
+    "hasExceptions": {
+      "equals": [
+        "sources.validation.status",
+        "EXCEPTION"
+      ]
+    }
+  },
+  "name": "Факты валидации заявки",
+  "description": "Преобразует результат проверки заявки в устойчивые признаки и merchant-поля."
 }

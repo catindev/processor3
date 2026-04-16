@@ -10,7 +10,9 @@
       "operationId": "FIND_CLIENT",
       "inputRef": "$.context.input.application",
       "nextStepId": "wait_find_client",
-      "onErrorStepId": "finish_fail"
+      "onErrorStepId": "finish_fail_find_client_call_error",
+      "name": "Поиск клиента в ABS",
+      "description": "Отправляет запрос на поиск клиента в ABS по данным заявки."
     },
     "wait_find_client": {
       "id": "wait_find_client",
@@ -18,8 +20,10 @@
       "subtype": "MESSAGE",
       "sourceStepId": "send_find_client",
       "nextStepId": "choose_find_client_scenario",
-      "onErrorStepId": "choose_find_client_scenario",
-      "onTimeoutStepId": "finish_fail"
+      "onErrorStepId": "finish_fail_find_client_wait_error",
+      "onTimeoutStepId": "finish_fail_find_client_wait_timeout",
+      "name": "Ожидание результата поиска клиента",
+      "description": "Ожидает внешний результат поиска клиента в ABS."
     },
     "choose_find_client_scenario": {
       "id": "choose_find_client_scenario",
@@ -34,7 +38,9 @@
           "ref": "$.context.decisions.find_client_scenario"
         }
       },
-      "nextStepId": "switch_find_client_scenario"
+      "nextStepId": "switch_find_client_scenario",
+      "name": "Выбор сценария по результату поиска",
+      "description": "Определяет, найден ли клиент, нужно ли его создать или произошла техническая ошибка."
     },
     "switch_find_client_scenario": {
       "id": "switch_find_client_scenario",
@@ -44,9 +50,11 @@
       "cases": {
         "NOT_FOUND": "send_create_client",
         "FOUND": "send_bind_client",
-        "TECHNICAL_ERROR": "finish_fail"
+        "TECHNICAL_ERROR": "finish_fail_find_client_decision_error"
       },
-      "defaultNextStepId": "finish_fail"
+      "defaultNextStepId": "finish_fail_find_client_decision_error",
+      "name": "Маршрутизация по результату поиска",
+      "description": "Переводит подпроцесс в ветку создания клиента, привязки или технического отказа."
     },
     "send_create_client": {
       "id": "send_create_client",
@@ -55,7 +63,9 @@
       "operationId": "CREATE_CLIENT",
       "inputRef": "$.context.input.application",
       "nextStepId": "wait_create_client",
-      "onErrorStepId": "finish_fail"
+      "onErrorStepId": "finish_fail_create_client_call_error",
+      "name": "Создание клиента в ABS",
+      "description": "Отправляет команду на создание карточки клиента в ABS."
     },
     "wait_create_client": {
       "id": "wait_create_client",
@@ -63,8 +73,10 @@
       "subtype": "MESSAGE",
       "sourceStepId": "send_create_client",
       "nextStepId": "send_bind_client",
-      "onErrorStepId": "finish_fail",
-      "onTimeoutStepId": "finish_fail"
+      "onErrorStepId": "finish_fail_create_client_wait_error",
+      "onTimeoutStepId": "finish_fail_create_client_wait_timeout",
+      "name": "Ожидание создания клиента",
+      "description": "Ожидает результат создания клиента в ABS."
     },
     "send_bind_client": {
       "id": "send_bind_client",
@@ -73,7 +85,9 @@
       "operationId": "BIND_CLIENT",
       "inputRef": "$.context.input.application",
       "nextStepId": "wait_bind_client",
-      "onErrorStepId": "finish_fail"
+      "onErrorStepId": "finish_fail_bind_client_call_error",
+      "name": "Привязка клиента",
+      "description": "Отправляет команду на привязку клиента к бенефициару."
     },
     "wait_bind_client": {
       "id": "wait_bind_client",
@@ -81,8 +95,10 @@
       "subtype": "MESSAGE",
       "sourceStepId": "send_bind_client",
       "nextStepId": "finish_success",
-      "onErrorStepId": "finish_fail",
-      "onTimeoutStepId": "finish_fail"
+      "onErrorStepId": "finish_fail_bind_client_wait_error",
+      "onTimeoutStepId": "finish_fail_bind_client_wait_timeout",
+      "name": "Ожидание результата привязки",
+      "description": "Ожидает результат привязки клиента в ABS."
     },
     "finish_success": {
       "id": "finish_success",
@@ -92,17 +108,141 @@
         "status": "COMPLETE",
         "outcome": "ABS_ENSURE_BENEFICIARY_DONE",
         "errors": []
-      }
+      },
+      "name": "Подпроцесс завершён успешно",
+      "description": "Завершает подпроцесс успешным обеспечением и привязкой бенефициара."
     },
-    "finish_fail": {
-      "id": "finish_fail",
+    "finish_fail_find_client_call_error": {
+      "id": "finish_fail_find_client_call_error",
       "type": "TERMINAL",
       "subtype": "FAIL",
       "result": {
         "status": "FAIL",
         "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "FIND_CLIENT_CALL_ERROR",
         "errors": []
-      }
+      },
+      "name": "Техническая ошибка вызова поиска клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если не удалось отправить запрос на поиск клиента в ABS."
+    },
+    "finish_fail_find_client_wait_timeout": {
+      "id": "finish_fail_find_client_wait_timeout",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "FIND_CLIENT_TIMEOUT",
+        "errors": []
+      },
+      "name": "Таймаут ожидания поиска клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если поиск клиента в ABS не вернул результат вовремя."
+    },
+    "finish_fail_find_client_wait_error": {
+      "id": "finish_fail_find_client_wait_error",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "FIND_CLIENT_WAIT_ERROR",
+        "errors": []
+      },
+      "name": "Техническая ошибка ожидания поиска клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если ожидание результата поиска клиента завершилось ошибкой."
+    },
+    "finish_fail_find_client_decision_error": {
+      "id": "finish_fail_find_client_decision_error",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "FIND_CLIENT_DECISION_ERROR",
+        "errors": []
+      },
+      "name": "Техническая ошибка определения сценария поиска",
+      "description": "Завершает подпроцесс технической ошибкой, если после поиска клиента не удалось выбрать корректный сценарий."
+    },
+    "finish_fail_create_client_call_error": {
+      "id": "finish_fail_create_client_call_error",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "CREATE_CLIENT_CALL_ERROR",
+        "errors": []
+      },
+      "name": "Техническая ошибка вызова создания клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если не удалось отправить команду на создание клиента в ABS."
+    },
+    "finish_fail_create_client_wait_error": {
+      "id": "finish_fail_create_client_wait_error",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "CREATE_CLIENT_WAIT_ERROR",
+        "errors": []
+      },
+      "name": "Техническая ошибка ожидания создания клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если ожидание результата создания клиента завершилось ошибкой."
+    },
+    "finish_fail_create_client_wait_timeout": {
+      "id": "finish_fail_create_client_wait_timeout",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "CREATE_CLIENT_TIMEOUT",
+        "errors": []
+      },
+      "name": "Таймаут ожидания создания клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если создание клиента в ABS не завершилось вовремя."
+    },
+    "finish_fail_bind_client_call_error": {
+      "id": "finish_fail_bind_client_call_error",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "BIND_CLIENT_CALL_ERROR",
+        "errors": []
+      },
+      "name": "Техническая ошибка вызова привязки клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если не удалось отправить команду на привязку клиента."
+    },
+    "finish_fail_bind_client_wait_error": {
+      "id": "finish_fail_bind_client_wait_error",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "BIND_CLIENT_WAIT_ERROR",
+        "errors": []
+      },
+      "name": "Техническая ошибка ожидания привязки клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если ожидание результата привязки клиента завершилось ошибкой."
+    },
+    "finish_fail_bind_client_wait_timeout": {
+      "id": "finish_fail_bind_client_wait_timeout",
+      "type": "TERMINAL",
+      "subtype": "FAIL",
+      "result": {
+        "status": "FAIL",
+        "outcome": "TECHNICAL_FAILURE",
+        "reasonCode": "BIND_CLIENT_TIMEOUT",
+        "errors": []
+      },
+      "name": "Таймаут ожидания привязки клиента",
+      "description": "Завершает подпроцесс технической ошибкой, если привязка клиента в ABS не завершилась вовремя."
     }
-  }
+  },
+  "name": "Обеспечение и привязка бенефициара в ABS",
+  "description": "Находит клиента в ABS, при необходимости создаёт его и выполняет привязку к бенефициару."
 }

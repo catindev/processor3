@@ -10,5 +10,7 @@
     "mappings.fl_resident.validation_reject_terminal_result": "mappings/validation_reject_terminal_result.v3.json"
   },
   "decisionsFile": "decision.v3.json",
-  "operatorPackId": "beneficiary-defaults"
+  "operatorPackId": "beneficiary-defaults",
+  "name": "Набор артефактов регистрации бенефициара",
+  "description": "Основной набор артефактов процесса регистрации бенефициара ФЛ-резидента."
 }

@@ -3,3 +3,5 @@ node_modules/
 processlogs/
 npm-debug.log*
 processor3.zip
+ui-dist/
+*.tgz

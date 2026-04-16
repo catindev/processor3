@@ -8,6 +8,7 @@ import {
   startProcess,
   validateStateShape
 } from './process-kernel.js';
+import { buildFlowGraphDocument } from './flow-graph.js';
 
 function ensureObject(value, message) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -33,11 +34,9 @@ function assertStepResultBody(body, resultFieldName) {
 }
 
 export function createProcessor(runtime) {
-  const isReady = runtime.ready && runtime.project;
-
   function runtimeInfo() {
     return {
-      ready: Boolean(isReady),
+      ready: Boolean(runtime.ready && runtime.project),
       defaultFlow: runtime.defaultFlow,
       flows: runtime.flows,
       diagnostics: runtime.diagnostics
@@ -45,7 +44,7 @@ export function createProcessor(runtime) {
   }
 
   function assertRuntimeReady() {
-    if (!isReady) {
+    if (!(runtime.ready && runtime.project)) {
       throw new HttpError(503, 'runtime_unavailable', 'PROJECT_NOT_READY', 'Processor runtime is not ready.', {
         diagnostics: runtime.diagnostics
       });
@@ -55,13 +54,25 @@ export function createProcessor(runtime) {
 
   return {
     health() {
+      const ready = Boolean(runtime.ready && runtime.project);
       return {
-        statusCode: isReady ? 200 : 503,
+        statusCode: ready ? 200 : 503,
         body: {
-          status: isReady ? 'ready' : 'not_ready',
+          status: ready ? 'ready' : 'not_ready',
           artifactRuntime: runtimeInfo()
         }
       };
+    },
+
+    listFlows() {
+      const project = assertRuntimeReady();
+      return { flows: project.listFlows() };
+    },
+
+    async describeFlow(flowId, flowVersion) {
+      const project = assertRuntimeReady();
+      const flow = project.getFlowSource(flowId, flowVersion);
+      return await buildFlowGraphDocument(flow);
     },
 
     init(body) {
