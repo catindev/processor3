@@ -101,7 +101,11 @@ test('http facade exposes health, openapi and tombstone execute endpoint', async
   assert.equal(openApiDocument.paths['/execute'], undefined);
 
   const docsResponse = await fetch(`${server.baseUrl}/docs`);
-  assert.equal(docsResponse.status, 200);
+  assert.ok([200, 503].includes(docsResponse.status));
+  if (docsResponse.status === 503) {
+    const docsPayload = await docsResponse.json();
+    assert.equal(docsPayload.message, 'Swagger UI not available in this environment.');
+  }
 
   const executeResponse = await fetch(`${server.baseUrl}/execute`, {
     method: 'POST',

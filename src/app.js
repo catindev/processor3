@@ -2,7 +2,6 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import swaggerUi from 'swagger-ui-express';
 import { HttpError, errorPayload } from './errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -45,7 +44,16 @@ export function createApp(processor, openApiDocument, processLogger = null) {
   });
 
   app.get('/openapi.json', (_req, res) => res.json(openApiDocument));
-  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument, { explorer: true, customSiteTitle: 'Processor3 API' }));
+
+  // Swagger UI: optional, only available when swagger-ui-express is installed (dev).
+  // Using .then/.catch to avoid requiring createApp to be async.
+  import('swagger-ui-express')
+    .then(({ default: swaggerUi }) => {
+      app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument, { explorer: true, customSiteTitle: 'Processor3 API' }));
+    })
+    .catch(() => {
+      app.get('/docs', (_req, res) => res.status(503).json({ message: 'Swagger UI not available in this environment.' }));
+    });
 
   app.get('/api/flows', (req, res, next) => respond(res, () => processor.listFlows(), next));
   app.get('/api/flows/:flowId', (req, res, next) => respond(res, () => processor.describeFlow(req.params.flowId, req.query.version), next));

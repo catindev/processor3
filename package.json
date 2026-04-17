@@ -19,8 +19,7 @@
     "@processengine/mappings": "^2.0.1",
     "@processengine/rules": "^2.0.1",
     "@processengine/semantics": "^1.0.0",
-    "express": "^4.21.2",
-    "swagger-ui-express": "^5.0.1"
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "elkjs": "^0.11.1",
@@ -28,6 +27,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "reactflow": "^11.11.4",
+    "swagger-ui-express": "^5.0.1",
     "vite": "^5.4.21"
   }
 }
