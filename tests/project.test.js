@@ -164,22 +164,20 @@ test('presentation graph collapses effect-wait into one interaction node and kee
   assert.equal(sendFindNode.data.kind, 'WAIT');
   assert.equal(sendFindNode.data.type, 'EFFECT');
   assert.equal(sendFindNode.data.interaction.waitStepId, 'wait_find_client');
-  assert.equal(sendFindNode.data.hiddenFailureCount, 3);
+  assert.equal(sendFindNode.data.hiddenFailureCount, 2);
   assert.deepEqual(sendFindNode.data.hiddenFailures.map((failure) => failure.originTitle), [
     'Ошибка вызова операции',
-    'Ошибка ожидания результата',
     'Таймаут ожидания результата'
   ]);
   assert.deepEqual(sendFindNode.data.hiddenFailures.map((failure) => failure.stepId), [
     'finish_fail_find_client_call_error',
-    'finish_fail_find_client_wait_error',
     'finish_fail_find_client_wait_timeout'
   ]);
   assert.equal(doc.nodes.filter((node) => node.sourceStepId === 'wait_find_client').length, 0);
 
   const sendFindEdges = doc.edges.filter((edge) => edge.source === sendFindNode.id);
   assert.equal(sendFindEdges.length, 1);
-  assert.deepEqual(sendFindEdges.map((edge) => edge.label), ['success']);
+  assert.deepEqual(sendFindEdges.map((edge) => edge.label), ['success / error']);
 
   const switchNode = doc.nodes.find((node) => node.sourceStepId === 'switch_find_client_scenario');
   assert.ok(switchNode);
