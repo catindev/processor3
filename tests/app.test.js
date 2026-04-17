@@ -260,3 +260,26 @@ test('flow API returns html app shell and graph data', async (t) => {
   assert.ok(Array.isArray(graphPayload.edges));
   assert.ok(graphPayload.nodes.some((node) => node.label === 'Проверка заявки ФЛ-резидента'));
 });
+
+test('applications route serves bundled orchestrator admin ui', async (t) => {
+  const server = await startServer(createReadyRuntime());
+  t.after(() => server.close());
+
+  const applicationsPage = await fetch(`${server.baseUrl}/applications`);
+  assert.equal(applicationsPage.status, 200);
+  assert.match(applicationsPage.headers.get('content-type') || '', /text\/html/);
+  const applicationsHtml = await applicationsPage.text();
+  assert.match(applicationsHtml, /Бенефициары ном\. счетов \(заявки\)/);
+  assert.match(applicationsHtml, /\/applications\/assets\/index-.*\.js/);
+  assert.match(applicationsHtml, /\/applications\/favicon\.svg/);
+
+  const assetMatch = applicationsHtml.match(/\/applications\/assets\/[^"]+\.js/);
+  assert.ok(assetMatch);
+  const assetResponse = await fetch(`${server.baseUrl}${assetMatch[0]}`);
+  assert.equal(assetResponse.status, 200);
+  assert.match(assetResponse.headers.get('content-type') || '', /(javascript|ecmascript)/);
+
+  const nestedRoute = await fetch(`${server.baseUrl}/applications/requests/123`);
+  assert.equal(nestedRoute.status, 200);
+  assert.match(nestedRoute.headers.get('content-type') || '', /text\/html/);
+});
